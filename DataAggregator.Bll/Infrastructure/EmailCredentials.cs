@@ -1,6 +1,6 @@
 ﻿namespace DataAggregator.Bll.Infrastructure
 {
-    internal class EmailCredentials
+    public sealed class EmailCredentials
     {
         public string From { get; set; }
 

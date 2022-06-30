@@ -1,7 +1,9 @@
-﻿namespace DataAggregator.Bll.Contract.Interfaces
+﻿using DataAggregator.Bll.Contract.Models;
+
+namespace DataAggregator.Bll.Contract.Interfaces
 {
     public interface IEmailDataSender
     {
-        void SendDataOnEmail(string email, MemoryStream data);
+        void SendDataOnEmail(MessageDetails messageDetails);
     }
 }
