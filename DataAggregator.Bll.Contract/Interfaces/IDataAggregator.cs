@@ -2,8 +2,8 @@
 
 namespace DataAggregator.Bll.Contract.Interfaces
 {
-    public interface IEmailDataSender
+    public interface IDataAggregator
     {
-        Task SendDataOnEmailAsync(MessageDetails messageDetails);
+        Task<string> ReceiveDataAsync(IAggregatorApi task);
     }
 }

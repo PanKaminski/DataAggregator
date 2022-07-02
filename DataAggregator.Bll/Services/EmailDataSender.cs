@@ -16,7 +16,7 @@ namespace DataAggregator.Bll.Services
                                     throw new ArgumentNullException(nameof(emailCredentials));
         }
 
-        public void SendDataOnEmail(MessageDetails messageDetails)
+        public async Task SendDataOnEmailAsync(MessageDetails messageDetails)
         {
             if (messageDetails is null)
             {
@@ -32,10 +32,10 @@ namespace DataAggregator.Bll.Services
 
             using var smtpClient = new SmtpClient();
 
-            smtpClient.Connect(this.emailCredentials.SmtpServer, emailCredentials.Port, true);
-            smtpClient.Authenticate(this.emailCredentials.UserName, this.emailCredentials.Password);
-            smtpClient.Send(emailMessage);
-            smtpClient.Disconnect(true);
+            await smtpClient.ConnectAsync(this.emailCredentials.SmtpServer, emailCredentials.Port, true);
+            await smtpClient.AuthenticateAsync(this.emailCredentials.From, this.emailCredentials.Password);
+            await smtpClient.SendAsync(emailMessage);
+            await smtpClient.DisconnectAsync(true);
         }
 
         private MimeMessage CreateEmailMessage(MessageDetails messageDetails)
