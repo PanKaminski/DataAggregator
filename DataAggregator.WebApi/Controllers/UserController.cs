@@ -35,7 +35,6 @@ namespace DataAggregator.WebApi.Controllers
                     ReferenceCurrency = "Euro",
                     Id = 1,
                     Description = "null",
-                    ApiUrl = null,
                     SparklineTime = "3h",
                 },
 
