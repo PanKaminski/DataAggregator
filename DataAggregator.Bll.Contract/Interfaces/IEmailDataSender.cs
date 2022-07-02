@@ -4,6 +4,6 @@ namespace DataAggregator.Bll.Contract.Interfaces
 {
     public interface IEmailDataSender
     {
-        void SendDataOnEmail(MessageDetails messageDetails);
+        Task SendDataOnEmailAsync(MessageDetails messageDetails);
     }
 }

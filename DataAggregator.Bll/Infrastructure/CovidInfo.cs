@@ -29,7 +29,10 @@ namespace DataAggregator.Bll.Infrastructure
         public string TotalRecovered { get; set; }
 
         public override string ToString() => $"{this.ActiveCases},{this.Country},{LastUpdate}," +
-                                             $"{this.NewCases},{this.NewDeaths},{this.TotalCases}," +
-                                             $"{this.TotalDeaths},{this.TotalRecovered}";
+                                             $"{this.NewCases.Replace(',', '.')}," +
+                                             $"{this.NewDeaths.Replace(',', '.')}," +
+                                             $"{this.TotalCases.Replace(',', '.')}," +
+                                             $"{this.TotalDeaths.Replace(',','.')}," +
+                                             $"{this.TotalRecovered.Replace(',', '.')}";
     }
 }

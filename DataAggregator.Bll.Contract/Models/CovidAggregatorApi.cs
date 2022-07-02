@@ -10,7 +10,5 @@ public class CovidAggregatorApi : IAggregatorApi
 
     public string ApiUrl { get; set; }
 
-    public IEnumerable<ApiTask> Subscriptions { get; set; }
-
     public string Country { get; set; }
 }

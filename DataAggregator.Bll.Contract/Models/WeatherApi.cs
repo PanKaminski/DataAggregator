@@ -10,7 +10,5 @@ public class WeatherApi : IAggregatorApi
 
     public string ApiUrl { get; set; }
 
-    public IEnumerable<ApiTask> Subscriptions { get; set; }
-
     public string Region { get; set; }
 }

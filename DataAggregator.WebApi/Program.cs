@@ -1,4 +1,6 @@
+using DataAggregator.Bll.Contract.Interfaces;
 using DataAggregator.Bll.Infrastructure;
+using DataAggregator.Bll.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,9 @@ builder.Services.AddSwaggerGen();
 
 var emailCreds = builder.Configuration.GetSection("EmailCredentials").Get<EmailCredentials>();
 builder.Services.AddSingleton(emailCreds);
+builder.Services.AddHttpClient<IDataAggregator, TaskDataAggregator>();
+builder.Services.AddScoped<IEmailDataSender, EmailDataSender>();
+builder.Services.AddScoped<IDataManager, DataManager>();
 
 var app = builder.Build();
 

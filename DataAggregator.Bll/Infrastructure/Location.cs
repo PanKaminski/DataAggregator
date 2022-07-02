@@ -25,6 +25,6 @@ internal class Location
     [JsonProperty("localtime_epoch")]
     public long LocalTimeEpoch { get; set; }
 
-    [JsonProperty("localtime_epoch")]
+    [JsonProperty("localtime")]
     public string LocalTime { get; set; }
 }

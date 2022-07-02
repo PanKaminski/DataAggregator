@@ -28,7 +28,7 @@ namespace DataAggregator.Bll.Services
                 await writer.FlushAsync();
                 stream.Position = 0;
 
-                emailDataSender.SendDataOnEmail(
+                await emailDataSender.SendDataOnEmailAsync(
                     new MessageDetails(user.Email, user.Email, "Aggregation data", stream));
             }
         }

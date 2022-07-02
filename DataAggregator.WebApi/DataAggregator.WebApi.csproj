@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DataAggregator.Bll.Contract\DataAggregator.Bll.Contract.csproj" />
     <ProjectReference Include="..\DataAggregator.Bll\DataAggregator.Bll.csproj" />
     <ProjectReference Include="..\DataAggregator.Dal.Contract\DataAggregator.Dal.Contract.csproj" />

@@ -6,11 +6,11 @@ using Newtonsoft.Json;
 
 namespace DataAggregator.Bll.Services
 {
-    public class DataAggregator : IDataAggregator
+    public class TaskDataAggregator : IDataAggregator
     {
         private readonly HttpClient httpClient;
 
-        public DataAggregator(HttpClient httpClient)
+        public TaskDataAggregator(HttpClient httpClient)
         {
             this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
@@ -40,20 +40,18 @@ namespace DataAggregator.Bll.Services
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
 
-            var content = string.Empty;
-
             var covidData = JsonConvert.DeserializeObject<CovidInfo>(body);
-
+            
             var propertyNames = typeof(CovidInfo).GetProperties()
                 .Select(p => p.GetCustomAttribute<JsonPropertyAttribute>())
-                .Select(jp => jp.PropertyName)
+                .Select(jpa => jpa.PropertyName ?? string.Empty)
                 .Aggregate((cur, next) => cur + ',' + next);
 
             await using var csvWriter = new StringWriter();
             await csvWriter.WriteLineAsync(propertyNames);
             await csvWriter.WriteLineAsync(covidData?.ToString() ?? string.Empty);
 
-            content = csvWriter.ToString();
+            var content = csvWriter.ToString();
 
             return content;
         }
@@ -75,8 +73,6 @@ namespace DataAggregator.Bll.Services
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
 
-            var content = string.Empty;
-
             var coinsData = JsonConvert.DeserializeObject<CoinsResponse>(body);
 
             var columnNames = typeof(CoinInfo).GetProperties()
@@ -85,7 +81,7 @@ namespace DataAggregator.Bll.Services
                 .Where(pn => pn != "sparkline")
                 .Aggregate((cur, next) => cur + ',' + next);
 
-            columnNames += coinsData.CoinsData.Coins.FirstOrDefault()
+            columnNames += coinsData?.CoinsData?.Coins?.FirstOrDefault()?
                 .Sparkline.Select((sl, i) => "sparkline" + i).Aggregate((cur, next) => cur + "," + next);
 
             await using var csvWriter = new StringWriter();
@@ -98,7 +94,7 @@ namespace DataAggregator.Bll.Services
 
             await csvWriter.WriteLineAsync(coinsData.ToString() ?? string.Empty);
 
-            content = csvWriter.ToString();
+            var content = csvWriter.ToString();
 
             return content;
         }
@@ -120,30 +116,28 @@ namespace DataAggregator.Bll.Services
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
 
-            var content = string.Empty;
-
             var weatherData = JsonConvert.DeserializeObject<WeatherInfo>(body);
 
             var locationColumns = typeof(Location).GetProperties()
                 .Select(p => p.GetCustomAttribute<JsonPropertyAttribute>())
-                .Select(jp => jp.PropertyName)
+                .Select(jpa => jpa?.PropertyName ?? string.Empty)
                 .Aggregate((cur, next) => cur + ',' + next);
 
             var descriptionColumns = typeof(WeatherDescription).GetProperties()
                 .Select(p => p.GetCustomAttribute<JsonPropertyAttribute>())
-                .Select(jp => jp.PropertyName)
+                .Select(jpa => jpa?.PropertyName ?? string.Empty)
                 .Aggregate((cur, next) => cur + ',' + next);
 
             var detailsColumns = typeof(WeatherDetails).GetProperties()
                 .Select(p => p.GetCustomAttribute<JsonPropertyAttribute>())
-                .Select(jp => jp.PropertyName)
+                .Select(jp => jp?.PropertyName ?? string.Empty)
                 .Aggregate((cur, next) => next != "condition" ? cur + ',' + next : cur);
 
             await using var csvWriter = new StringWriter();
             await csvWriter.WriteLineAsync(locationColumns + "," + descriptionColumns + "," + detailsColumns);
             await csvWriter.WriteLineAsync(weatherData?.ToString() ?? string.Empty);
 
-            content = csvWriter.ToString();
+            var content = csvWriter.ToString();
 
             return content;
         }

@@ -11,7 +11,7 @@ internal class WeatherDetails
     public string LastUpdatedTime { get; set; }
 
     [JsonProperty("temp_c")]
-    public int TemperatureInCelsius { get; set; }
+    public double TemperatureInCelsius { get; set; }
 
     [JsonProperty("temp_f")]
     public double TemperatureInFahrenheits { get; set; }
@@ -35,16 +35,16 @@ internal class WeatherDetails
     public string WindDirection { get; set; }
 
     [JsonProperty("pressure_mb")]
-    public int Pressure { get; set; }
+    public double Pressure { get; set; }
 
     [JsonProperty("pressure_in")]
     public double PressureInInches { get; set; }
 
     [JsonProperty("precip_mm")]
-    public int PrecipInMillimeters { get; set; }
+    public double PrecipInMillimeters { get; set; }
 
     [JsonProperty("precip_in")]
-    public int PrecipInInches { get; set; }
+    public double PrecipInInches { get; set; }
 
     [JsonProperty("humidity")]
     public int Humidity { get; set; }
@@ -53,19 +53,19 @@ internal class WeatherDetails
     public int Cloud { get; set; }
 
     [JsonProperty("feelslike_c")]
-    public int FeelsLikeInCelsius { get; set; }
+    public double FeelsLikeInCelsius { get; set; }
 
     [JsonProperty("feelslike_f")]
     public double FeelsLikeInFahrenheits { get; set; }
 
     [JsonProperty("vis_km")]
-    public int VisInKilometers { get; set; }
+    public double VisInKilometers { get; set; }
 
     [JsonProperty("vis_miles")]
-    public int VisInMiles { get; set; }
+    public double VisInMiles { get; set; }
 
     [JsonProperty("uv")]
-    public int UV { get; set; }
+    public double UV { get; set; }
 
     [JsonProperty("gust_mph")]
     public double GustInMph { get; set; }

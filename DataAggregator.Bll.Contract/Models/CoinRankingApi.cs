@@ -3,6 +3,7 @@
     public class CoinRankingApi : IAggregatorApi
     {
         private string referenceCurrency;
+
         public int Id { get; set; }
 
         public ApiType Name { get; }
@@ -10,8 +11,6 @@
         public string Description { get; set; }
 
         public string ApiUrl { get; set; }
-
-        public IEnumerable<ApiTask> Subscriptions { get; set; }
 
         public string SparklineTime { get; set; }
 
