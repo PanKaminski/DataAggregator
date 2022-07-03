@@ -24,7 +24,7 @@ namespace DataAggregator.WebApi.Controllers
             {
                 Id = 1,
                 Email = "ksendzfs@gmail.com",
-                Password = "",
+                PasswordHash = "",
                 ApiSubscriptions = null
             };
 

@@ -1,4 +1,6 @@
-﻿namespace DataAggregator.Bll.Contract.Models
+﻿using System.Text.Json.Serialization;
+
+namespace DataAggregator.Bll.Contract.Models
 {
     public class User
     {
@@ -6,7 +8,10 @@
          
         public string Email { get; set; }
 
-        public string Password { get; set; }
+        public UserRole Role { get; set; }
+
+        [JsonIgnore]
+        public string PasswordHash { get; set; }
 
         public IEnumerable<ApiTask> ApiSubscriptions { get; set; }
     }
