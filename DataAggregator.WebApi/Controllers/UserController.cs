@@ -39,7 +39,7 @@ namespace DataAggregator.WebApi.Controllers
                 },
 
                 Subscriber = user,
-                Repeat = 1
+                CronTimeExpression = "*****"
             };
 
             subscriptions.Add(apiTask);

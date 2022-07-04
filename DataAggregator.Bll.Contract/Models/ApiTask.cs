@@ -6,6 +6,6 @@
 
         public User Subscriber { get; set; }
 
-        public int Repeat { get; set; }
+        public string CronTimeExpression { get; set; }
     }
 }
