@@ -29,7 +29,7 @@ namespace DataAggregator.Dal.Repositories
                 Connection = this.sqlConnection,
             };
 
-            AddSqlParameters(userDto, sqlCommand);
+            AddSqlParametersForInsertion(userDto, sqlCommand);
 
             await this.sqlConnection.OpenAsync();
             var affectedRows = await sqlCommand.ExecuteNonQueryAsync();
@@ -124,7 +124,9 @@ namespace DataAggregator.Dal.Repositories
                 CommandText = "UPDATE users " +
                               "SET email = @email," +
                               "role = @role," +
-                              "password_hash = @password,",
+                              "password_hash = @password," +
+                              "count_of_requests = @countOfRequests," +
+                              "registration_date = @registerDate",
                 Connection = this.sqlConnection,
             };
 
@@ -232,5 +234,19 @@ namespace DataAggregator.Dal.Repositories
             command.Parameters.Add(passwordParameter, SqliteType.Text);
             command.Parameters[passwordParameter].Value = user.PasswordHash;
         }
+
+        private static void AddSqlParametersForInsertion(UserDto user, SqliteCommand command)
+        {
+            AddSqlParameters(user, command);
+
+            const string statisticsParameter = "@countOfRequests";
+            command.Parameters.Add(statisticsParameter, SqliteType.Integer);
+            command.Parameters[statisticsParameter].Value = user.CountOfRequests;
+
+            const string registerDateParameter = "@registerDate";
+            command.Parameters.Add(registerDateParameter, SqliteType.Text);
+            command.Parameters[registerDateParameter].Value = user.RegistrationDate.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
     }
 }
