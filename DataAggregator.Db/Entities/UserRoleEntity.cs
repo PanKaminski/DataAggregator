@@ -1,6 +1,6 @@
 ﻿namespace DataAggregator.Db.Entities
 {
-    public enum UserRole : byte
+    public enum UserRoleEntity : byte
     {
         Admin,
         User

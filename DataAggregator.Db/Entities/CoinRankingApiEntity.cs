@@ -1,12 +1,8 @@
 ﻿namespace DataAggregator.Db.Entities
 {
-    public class CoinRankingApi : IAggregatorApi
+    public class CoinRankingApiEntity : AggregatorApiEntity
     {
         private string referenceCurrency;
-
-        public int Id { get; set; }
-
-        public string Description { get; set; }
 
         public string SparklineTime { get; set; }
 

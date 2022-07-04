@@ -21,7 +21,7 @@ namespace DataAggregator.WebApi.Authorization
             var userId = jwtUtils.ValidateJwtToken(token);
             if (userId != null)
             {
-                httpContext.Items["User"] = await userService.GetByIdAsync(userId.Value);
+                httpContext.Items["UserEntity"] = await userService.GetByIdAsync(userId.Value);
             }
 
             await next(httpContext);
