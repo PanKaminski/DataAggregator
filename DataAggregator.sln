@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAggregator.WebApi", "DataAggregator.WebApi\DataAggregator.WebApi.csproj", "{616B8413-C320-4DD7-99FF-29FEFE40D665}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAggregator.WebApi", "DataAggregator.WebApi\DataAggregator.WebApi.csproj", "{616B8413-C320-4DD7-99FF-29FEFE40D665}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAggregator.Bll.Contract", "DataAggregator.Bll.Contract\DataAggregator.Bll.Contract.csproj", "{CBAF4623-BB80-4401-83DD-928E483D51B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAggregator.Bll.Contract", "DataAggregator.Bll.Contract\DataAggregator.Bll.Contract.csproj", "{CBAF4623-BB80-4401-83DD-928E483D51B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAggregator.Bll", "DataAggregator.Bll\DataAggregator.Bll.csproj", "{B882E8CB-CE3A-4E13-87C0-B0DFEC5AA90B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAggregator.Bll", "DataAggregator.Bll\DataAggregator.Bll.csproj", "{B882E8CB-CE3A-4E13-87C0-B0DFEC5AA90B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAggregator.Dal.Contract", "DataAggregator.Dal.Contract\DataAggregator.Dal.Contract.csproj", "{0C3C5DE3-3C2D-4E70-A025-9D102E7FE36D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAggregator.Dal.Contract", "DataAggregator.Dal.Contract\DataAggregator.Dal.Contract.csproj", "{0C3C5DE3-3C2D-4E70-A025-9D102E7FE36D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAggregator.Dal", "DataAggregator.Dal\DataAggregator.Dal.csproj", "{DDF7E6D2-E30E-47EF-8A8E-2C57CF3C8E0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAggregator.Dal", "DataAggregator.Dal\DataAggregator.Dal.csproj", "{DDF7E6D2-E30E-47EF-8A8E-2C57CF3C8E0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAggregator.Db", "DataAggregator.Db\DataAggregator.Db.csproj", "{9DC63FD9-9611-41A6-91E6-F7B9CA74CC6C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{DDF7E6D2-E30E-47EF-8A8E-2C57CF3C8E0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDF7E6D2-E30E-47EF-8A8E-2C57CF3C8E0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDF7E6D2-E30E-47EF-8A8E-2C57CF3C8E0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DC63FD9-9611-41A6-91E6-F7B9CA74CC6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DC63FD9-9611-41A6-91E6-F7B9CA74CC6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DC63FD9-9611-41A6-91E6-F7B9CA74CC6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DC63FD9-9611-41A6-91E6-F7B9CA74CC6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

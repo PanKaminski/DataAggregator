@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace DataAggregator.Bll.Contract.Models
+namespace DataAggregator.Db.Entities
 {
     public class User
     {

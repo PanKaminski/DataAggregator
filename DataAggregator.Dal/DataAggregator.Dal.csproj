@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataAggregator.Dal.Contract\DataAggregator.Dal.Contract.csproj" />
+    <ProjectReference Include="..\DataAggregator.Db\DataAggregator.Db.csproj" />
   </ItemGroup>
 
 </Project>
