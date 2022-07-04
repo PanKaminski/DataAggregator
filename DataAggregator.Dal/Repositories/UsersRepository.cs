@@ -124,9 +124,7 @@ namespace DataAggregator.Dal.Repositories
                 CommandText = "UPDATE users " +
                               "SET email = @email," +
                               "role = @role," +
-                              "password_hash = @password," +
-                              "count_of_requests = @countOfRequests," +
-                              "registration_date = @registerDate",
+                              "password_hash = @password,",
                 Connection = this.sqlConnection,
             };
 
@@ -233,14 +231,6 @@ namespace DataAggregator.Dal.Repositories
             const string passwordParameter = "@password";
             command.Parameters.Add(passwordParameter, SqliteType.Text);
             command.Parameters[passwordParameter].Value = user.PasswordHash;
-
-            const string statisticsParameter = "@countOfRequests";
-            command.Parameters.Add(statisticsParameter, SqliteType.Integer);
-            command.Parameters[statisticsParameter].Value = user.CountOfRequests;
-
-            const string registerDateParameter = "@registerDate";
-            command.Parameters.Add(registerDateParameter, SqliteType.Text);
-            command.Parameters[registerDateParameter].Value = user.RegistrationDate.ToString("yyyy-MM-dd HH:mm:ss");
         }
     }
 }
