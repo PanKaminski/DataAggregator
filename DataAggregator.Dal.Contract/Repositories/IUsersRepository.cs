@@ -4,16 +4,16 @@ namespace DataAggregator.Dal.Contract.Repositories
 {
     public interface IUsersRepository
     {
-        Task<int> AddUserAsync(UserDto userDto);
+        Task<int> AddAsync(UserDto userDto);
 
-        Task<UserDto> GetUserByIdAsync(int userId);
+        Task<UserDto> GetByIdAsync(int userId);
 
-        Task<UserDto> GetUserByEmailAsync(string email);
+        Task<UserDto> GetByEmailAsync(string email);
 
-        IAsyncEnumerable<UserDto> GetUsersAsync();
+        IAsyncEnumerable<UserDto> GetAllAsync();
 
         Task<bool> DeleteAsync(int userId);
 
-        Task<bool> UpdateUserAsync(int employeeId, UserDto userDto);
+        Task<bool> UpdateAsync(int employeeId, UserDto userDto);
     }
 }

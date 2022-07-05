@@ -14,7 +14,7 @@ namespace DataAggregator.Dal.Repositories
             this.sqlConnection = sqlConnection;
         }
 
-        public async Task<int> AddUserAsync(UserDto userDto)
+        public async Task<int> AddAsync(UserDto userDto)
         {
             if (userDto is null)
             {
@@ -38,7 +38,7 @@ namespace DataAggregator.Dal.Repositories
             return affectedRows;
         }
 
-        public async Task<UserDto> GetUserByIdAsync(int userId)
+        public async Task<UserDto> GetByIdAsync(int userId)
         {
             if (userId <= 0)
             {
@@ -48,7 +48,7 @@ namespace DataAggregator.Dal.Repositories
             return await this.SelectUserAsync(userId);
         }
 
-        public async Task<UserDto> GetUserByEmailAsync(string email)
+        public async Task<UserDto> GetByEmailAsync(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
             {
@@ -58,7 +58,7 @@ namespace DataAggregator.Dal.Repositories
             return await this.SelectUserAsync(email);
         }
 
-        public async IAsyncEnumerable<UserDto> GetUsersAsync()
+        public async IAsyncEnumerable<UserDto> GetAllAsync()
         {
             await using var sqlCommand = new SqliteCommand
             {
@@ -106,7 +106,7 @@ namespace DataAggregator.Dal.Repositories
             return result;
         }
 
-        public async Task<bool> UpdateUserAsync(int userId, UserDto userDto)
+        public async Task<bool> UpdateAsync(int userId, UserDto userDto)
         {
             if (userDto is null)
             {

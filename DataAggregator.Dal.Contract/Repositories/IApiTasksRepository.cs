@@ -2,15 +2,15 @@
 
 namespace DataAggregator.Dal.Contract.Repositories
 {
-    internal interface IApiTasksRepository
+    public interface IApiTasksRepository
     {
         Task<int> AddAsync(ApiTaskDto apiTask);
 
-        Task<ApiTaskDto> GetByUserIdAsync(int userId);
+        IAsyncEnumerable<ApiTaskDto> GetByUserIdAsync(int userId);
 
         IAsyncEnumerable<ApiTaskDto> GetAsync();
 
-        Task<bool> DeleteAsync(int userId);
+        Task<bool> DeleteAsync(int apiTaskId);
 
         Task<bool> UpdateAsync(int apiTaskId, ApiTaskDto apiTask);
     }
