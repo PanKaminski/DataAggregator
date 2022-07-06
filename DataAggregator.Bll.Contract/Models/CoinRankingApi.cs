@@ -1,12 +1,8 @@
 ﻿namespace DataAggregator.Bll.Contract.Models
 {
-    public class CoinRankingApi : IAggregatorApi
+    public class CoinRankingApi : AggregatorApi
     {
         private string referenceCurrency;
-
-        public int Id { get; set; }
-
-        public string Description { get; set; }
 
         public string SparklineTime { get; set; }
 

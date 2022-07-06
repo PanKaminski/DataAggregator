@@ -58,6 +58,28 @@ namespace DataAggregator.Dal.Repositories
             return await this.SelectUserAsync(email);
         }
 
+        public async Task<long> GetCountAsync()
+        {
+            await using var sqlCommand = new SqliteCommand()
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT COUNT(*) AS count FROM users",
+                Connection = this.sqlConnection,
+            };
+
+            await this.sqlConnection.OpenAsync();
+
+            var reader = await sqlCommand.ExecuteReaderAsync();
+
+            await reader.ReadAsync();
+
+            var count = (long)reader["count"];
+
+            await this.sqlConnection.CloseAsync();
+
+            return count;
+        }
+
         public async IAsyncEnumerable<UserDto> GetAllAsync()
         {
             await using var sqlCommand = new SqliteCommand
@@ -210,11 +232,11 @@ namespace DataAggregator.Dal.Repositories
 
             return new UserDto
             {
-                Id = (int)reader["id"],
+                Id = (int)(long)reader["id"],
                 Email = (string)reader["email"],
                 Role = role,
                 PasswordHash = (string)reader["password_hash"],
-                CountOfRequests = (int)reader["count_of_requests"],
+                CountOfRequests = (int)(long)reader["count_of_requests"],
                 RegistrationDate = DateTime.Parse((string)reader["registration_date"]),
                 ApiSubscriptions = new List<ApiTaskDto>(),
             };
@@ -245,7 +267,7 @@ namespace DataAggregator.Dal.Repositories
 
             const string registerDateParameter = "@registerDate";
             command.Parameters.Add(registerDateParameter, SqliteType.Text);
-            command.Parameters[registerDateParameter].Value = user.RegistrationDate.ToString("yyyy-MM-dd HH:mm:ss");
+            command.Parameters[registerDateParameter].Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
     }

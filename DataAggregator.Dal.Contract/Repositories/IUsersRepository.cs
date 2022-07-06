@@ -10,10 +10,12 @@ namespace DataAggregator.Dal.Contract.Repositories
 
         Task<UserDto> GetByEmailAsync(string email);
 
+        Task<long> GetCountAsync();
+
         IAsyncEnumerable<UserDto> GetAllAsync();
 
         Task<bool> DeleteAsync(int userId);
 
-        Task<bool> UpdateAsync(int employeeId, UserDto userDto);
+        Task<bool> UpdateAsync(int userId, UserDto userDto);
     }
 }

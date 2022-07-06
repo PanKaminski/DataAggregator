@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAggregator.Bll.Contract.Models;
+﻿using DataAggregator.Bll.Contract.Models;
+
 namespace DataAggregator.Bll.Contract.Interfaces
 {
     public interface IUserService
@@ -14,10 +10,10 @@ namespace DataAggregator.Bll.Contract.Interfaces
 
         IAsyncEnumerable<User> GetAllAsync();
 
-        Task<int> Add(User user);
+        Task<int> AddAsync(User user);
 
-        Task<bool> Delete(int userId);
+        Task<bool> DeleteAsync(int userId);
 
-        Task<bool> Update(User user);
+        Task<bool> UpdateAsync(int userId, User user);
     }
 }

@@ -22,6 +22,8 @@ namespace DataAggregator.Dal.Repositories
             }
 
             var result = await AddApiTaskAsync(apiTask);
+            apiTask.Id = await this.GetLastInsertedRowIdAsync();
+            apiTask.Api.Id = apiTask.Id;
             await AddApiTaskAggregatorAsync(apiTask.Api);
             await AddConcreteApiTaskAggregatorAsync(apiTask.Api);
 
@@ -48,7 +50,7 @@ namespace DataAggregator.Dal.Repositories
 
             await this.sqlConnection.OpenAsync();
 
-            var reader = await sqlCommand.ExecuteReaderAsync();
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
             {
@@ -142,9 +144,10 @@ namespace DataAggregator.Dal.Repositories
             sqlCommand.Parameters.Add(apiTaskIdParameter, SqliteType.Integer);
             sqlCommand.Parameters[apiTaskIdParameter].Value = apiTask.Id;
 
-            reader = await sqlCommand.ExecuteReaderAsync();
+            await using var aggregationApiReader = await sqlCommand.ExecuteReaderAsync();
 
-            var api = await ReadAggregationApi(reader);
+            await aggregationApiReader.ReadAsync();
+            var api = await ReadAggregationApi(aggregationApiReader);
             apiTask.Api = api;
             api.ApiTask = apiTask;
             api.ApiTaskKey = apiTask.Id;
@@ -155,7 +158,7 @@ namespace DataAggregator.Dal.Repositories
         private static ApiTaskDto ReadApiTaskFields(SqliteDataReader reader) =>
             new ApiTaskDto
             {
-                Id = (int)reader["id"],
+                Id = (int)(long)reader["id"],
                 Name = (string)reader["name"],
                 Description = (string)reader["description"],
                 Api = null,
@@ -165,7 +168,7 @@ namespace DataAggregator.Dal.Repositories
 
         private async Task<AggregatorApiDto> ReadAggregationApi(SqliteDataReader reader)
         {
-            var id = (int)reader["id"];
+            var id = (int)(long)reader["id"];
             var apiType = (string)reader["api_type"];
 
             await using var sqlCommand = new SqliteCommand
@@ -174,60 +177,69 @@ namespace DataAggregator.Dal.Repositories
                 Connection = this.sqlConnection,
             };
 
-            if (apiType == "CoinRanking")
+            switch (apiType)
             {
-                sqlCommand.CommandText = "SELECT * FROM coin_ranking_apis WHERE id = @apiAggreagatorId";
-
-                const string apiAggregatorIdParameter = "@apiAggreagatorId";
-                sqlCommand.Parameters.Add(apiAggregatorIdParameter, SqliteType.Integer);
-                sqlCommand.Parameters[apiAggregatorIdParameter].Value = id;
-
-                reader = await sqlCommand.ExecuteReaderAsync();
-
-                return new CoinRankingApiDto
+                case "CoinRanking":
                 {
-                    Id = id,
-                    ApiTaskKey = 0,
-                    ApiTask = null,
-                    ReferenceCurrency = (string)reader["reference_currency"],
-                    SparklineTime = (string)reader["sparkline_time"]
-                };
-            }
-            else if (apiType == "WeatherTracker")
-            {
-                sqlCommand.CommandText = "SELECT * FROM weather_apis WHERE id = @apiAggreagatorId";
+                    sqlCommand.CommandText = "SELECT * FROM coin_ranking_apis WHERE id = @apiAggreagatorId";
 
-                const string apiAggregatorIdParameter = "@apiAggreagatorId";
-                sqlCommand.Parameters.Add(apiAggregatorIdParameter, SqliteType.Integer);
-                sqlCommand.Parameters[apiAggregatorIdParameter].Value = id;
+                    const string apiAggregatorIdParameter = "@apiAggreagatorId";
+                    sqlCommand.Parameters.Add(apiAggregatorIdParameter, SqliteType.Integer);
+                    sqlCommand.Parameters[apiAggregatorIdParameter].Value = id;
 
-                reader = await sqlCommand.ExecuteReaderAsync();
+                    reader = await sqlCommand.ExecuteReaderAsync();
+                    await reader.ReadAsync();
 
-                return new WeatherApiDto
+                    return new CoinRankingApiDto
+                    {
+                        Id = id,
+                        ApiTaskKey = 0,
+                        ApiTask = null,
+                        ApiType = ApiTypeDto.CoinRanking,
+                        ReferenceCurrency = (string)reader["reference_currency"],
+                        SparklineTime = (string)reader["sparkline_time"]
+                    };
+                }
+                case "WeatherTracker":
                 {
-                    Id = id,
-                    ApiTaskKey = 0,
-                    ApiTask = null,
-                    Region = (string)reader["region"],
-                };
-            }
-            else
-            {
-                sqlCommand.CommandText = "SELECT * FROM covid_aggregator_apis WHERE id = @apiAggreagatorId";
+                    sqlCommand.CommandText = "SELECT * FROM weather_apis WHERE id = @apiAggreagatorId";
 
-                const string apiAggregatorIdParameter = "@apiAggreagatorId";
-                sqlCommand.Parameters.Add(apiAggregatorIdParameter, SqliteType.Integer);
-                sqlCommand.Parameters[apiAggregatorIdParameter].Value = id;
+                    const string apiAggregatorIdParameter = "@apiAggreagatorId";
+                    sqlCommand.Parameters.Add(apiAggregatorIdParameter, SqliteType.Integer);
+                    sqlCommand.Parameters[apiAggregatorIdParameter].Value = id;
 
-                reader = await sqlCommand.ExecuteReaderAsync();
+                    reader = await sqlCommand.ExecuteReaderAsync();
+                    await reader.ReadAsync();
 
-                return new CovidAggregatorApiDto
+                    return new WeatherApiDto
+                    {
+                        Id = id,
+                        ApiTaskKey = 0,
+                        ApiTask = null,
+                        ApiType = ApiTypeDto.WeatherTracker,
+                        Region = (string)reader["region"],
+                    };
+                }
+                default:
                 {
-                    Id = id,
-                    ApiTaskKey = 0,
-                    ApiTask = null,
-                    Country = (string)reader["country"],
-                };
+                    sqlCommand.CommandText = "SELECT * FROM covid_aggregator_apis WHERE id = @apiAggreagatorId";
+
+                    const string apiAggregatorIdParameter = "@apiAggreagatorId";
+                    sqlCommand.Parameters.Add(apiAggregatorIdParameter, SqliteType.Integer);
+                    sqlCommand.Parameters[apiAggregatorIdParameter].Value = id;
+
+                    reader = await sqlCommand.ExecuteReaderAsync();
+                    await reader.ReadAsync();
+
+                    return new CovidAggregatorApiDto
+                    {
+                        Id = id,
+                        ApiTaskKey = 0,
+                        ApiType = ApiTypeDto.CovidTracker,
+                        ApiTask = null,
+                        Country = (string)reader["country"],
+                    };
+                }
             }
         }
 
@@ -250,15 +262,35 @@ namespace DataAggregator.Dal.Repositories
             return affectedRows;
         }
 
+        private async Task<int> GetLastInsertedRowIdAsync()
+        {
+            await using var sqlCommand = new SqliteCommand
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT last_insert_rowid();",
+                Connection = this.sqlConnection,
+            };
+
+            await this.sqlConnection.OpenAsync();
+            var affectedRows = (int)(await sqlCommand.ExecuteScalarAsync());
+            await this.sqlConnection.CloseAsync();
+
+            return affectedRows;
+        }
+
         private async Task<int> AddApiTaskAggregatorAsync(AggregatorApiDto aggregator)
         {
             await using var sqlCommand = new SqliteCommand
             {
                 CommandType = CommandType.Text,
-                CommandText = "INSERT INTO apis_aggregators (api_task_key, api_type) " +
-                              "VALUES(@apiTask, @apiType); ",
+                CommandText = "INSERT INTO apis_aggregators (id, api_task_key, api_type) " +
+                              "VALUES(@id, @apiTask, @apiType); ",
                 Connection = this.sqlConnection,
             };
+
+            const string idParameter = "@id";
+            sqlCommand.Parameters.Add(idParameter, SqliteType.Integer);
+            sqlCommand.Parameters[idParameter].Value = aggregator.Id;
 
             const string apiTaskIdParameter = "@apiTask";
             sqlCommand.Parameters.Add(apiTaskIdParameter, SqliteType.Integer);

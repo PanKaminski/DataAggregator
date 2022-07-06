@@ -1,5 +1,6 @@
 ﻿using DataAggregator.Bll.Contract.Interfaces;
 using DataAggregator.WebApi.Helpers;
+using Microsoft.Extensions.Options;
 
 namespace DataAggregator.WebApi.Authorization
 {
@@ -9,10 +10,10 @@ namespace DataAggregator.WebApi.Authorization
         private readonly RequestDelegate next;
         private readonly AppSettings appSettings;
 
-        public JwtMiddleware(RequestDelegate next, AppSettings appSettings)
+        public JwtMiddleware(RequestDelegate next, IOptions<AppSettings> appConfigurationSettings)
         {
             this.next = next;
-            this.appSettings = appSettings;
+            this.appSettings = appConfigurationSettings.Value;
         }
 
         public async Task Invoke(HttpContext httpContext, IUserService userService, IJwtUtils jwtUtils)
@@ -21,7 +22,7 @@ namespace DataAggregator.WebApi.Authorization
             var userId = jwtUtils.ValidateJwtToken(token);
             if (userId != null)
             {
-                httpContext.Items["UserEntity"] = await userService.GetByIdAsync(userId.Value);
+                httpContext.Items["User"] = await userService.GetByIdAsync(userId.Value);
             }
 
             await next(httpContext);

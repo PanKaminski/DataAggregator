@@ -1,9 +1,9 @@
 ﻿namespace DataAggregator.Bll.Contract.Models
 {
-    public interface IAggregatorApi
+    public abstract class AggregatorApi
     {
         public int Id { get; set; }
 
-        public string Description { get; set; }
+        public ApiTask ApiTask { get; set; }
     }
 }
