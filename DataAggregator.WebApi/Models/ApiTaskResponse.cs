@@ -1,6 +1,6 @@
 ﻿namespace DataAggregator.WebApi.Models
 {
-    public class ApiTaskItemResponse
+    public class ApiTaskResponse
     {
         public int Id { get; set; }
 
@@ -8,6 +8,9 @@
 
         public string Description { get; set; }
 
-        public string CronExpression { get; set; }
+        public ApiAggregatorViewModel Api { get; set; }
+
+        public string CronTimeExpression { get; set; }
+
     }
 }

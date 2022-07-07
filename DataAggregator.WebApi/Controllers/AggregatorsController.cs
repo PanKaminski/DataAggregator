@@ -35,7 +35,60 @@ namespace DataAggregator.WebApi.Controllers
         [HttpGet("/{apiTaskId}")]
         public async Task<IActionResult> GetByIdAsync(int apiTaskId)
         {
-            return Ok();
+            if (apiTaskId <= 0)
+            {
+                return this.BadRequest();
+            }
+
+            var model = await this.apiTasksService.GetAsync(apiTaskId);
+            var user = (User)this.HttpContext.Items["User"];
+
+            if (user is null || model.Subscriber.Id != user.Id)
+            {
+                return this.BadRequest();
+            }
+
+            return Ok(this.mapper.Map<ApiTaskResponse>(model));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTaskAsync(ApiTaskCreateRequest taskViewModel)
+        {
+            if (taskViewModel is null)
+            {
+                return this.BadRequest();
+            }
+
+            var model = this.mapper.Map<ApiTask>(taskViewModel);
+            model.Subscriber = (User)this.HttpContext.Items["User"];
+
+            var id = await this.apiTasksService.AddAsync(model);
+
+            return id > 0 ? this.Ok(id) : this.BadRequest();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTaskAsync(int id, ApiTaskCreateRequest taskViewModel)
+        {
+            if (taskViewModel is null)
+            {
+                return this.BadRequest();
+            }
+
+            var currentData = await this.apiTasksService.GetAsync(id);
+            var user = (User)this.HttpContext.Items["User"];
+
+            if (currentData is null || currentData.Subscriber.Id != user.Id)
+            {
+                return this.BadRequest();
+            }
+
+            var model = this.mapper.Map<ApiTask>(taskViewModel);
+            model.Subscriber = user;
+
+            var isUpdated = await this.apiTasksService.UpdateAsync(id, model);
+
+            return isUpdated ? this.NoContent() : this.BadRequest();
         }
 
         [HttpDelete("/{apiTaskId}")]

@@ -8,7 +8,13 @@
 
         public string ReferenceCurrency
         {
-            get => this.referenceCurrency;
+            get => this.referenceCurrency switch
+            {
+                "5k-_VTxqtCEI" => "Euro",
+                "Qwsogvtv82FCd" => "Bitcoin",
+                "yhjMzLPhuIDl" => "US Dollar",
+                _ => string.Empty
+            };
             set
             {
                 this.referenceCurrency = value switch

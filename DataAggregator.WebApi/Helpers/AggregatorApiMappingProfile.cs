@@ -10,13 +10,6 @@ namespace DataAggregator.WebApi.Helpers
     {
         public AggregatorApiMappingProfile()
         {
-            this.CreateMap<UserEntity, UserDto>().ReverseMap();
-            this.CreateMap<AggregatorApiEntity, AggregatorApiDto>().ReverseMap();
-            this.CreateMap<WeatherApiEntity, WeatherApiDto>().ReverseMap();
-            this.CreateMap<CovidAggregatorApiEntity, CovidAggregatorApiDto>().ReverseMap();
-            this.CreateMap<CoinRankingApiEntity, CoinRankingApiDto>().ReverseMap();
-            this.CreateMap<ApiTaskEntity, ApiTaskDto>().ReverseMap();
-
             // user dto <-> model
             this.CreateMap<UserDto, User>().ForMember(dm => dm.Role,
                 expression => expression.MapFrom(me => (UserRole)(byte)me.Role));
@@ -56,6 +49,19 @@ namespace DataAggregator.WebApi.Helpers
             // api task response
             this.CreateMap<ApiTask, ApiTaskItemResponse>().ForMember(target => target.CronExpression,
                 expr => expr.MapFrom(bll => bll.CronTimeExpression));
+
+            //api task requests
+            this.CreateMap<ApiTaskCreateRequest, ApiTask>();
+            this.CreateMap<ApiAggregatorViewModel, AggregatorApi>()
+                .Include<CoinRankingAggregatorViewModel, CoinRankingApi>()
+                .Include<WeatherAggregatorViewModel, WeatherApi>()
+                .Include<CoinRankingAggregatorViewModel, CovidAggregatorApi>().ReverseMap();
+            this.CreateMap<CoinRankingAggregatorViewModel, CoinRankingApi>().ReverseMap();
+            this.CreateMap<WeatherAggregatorViewModel, WeatherApi>().ReverseMap();
+            this.CreateMap<CoinRankingAggregatorViewModel, CovidAggregatorApi>().ReverseMap();
+
+            //api task response
+            this.CreateMap<ApiTask, ApiTaskResponse>();
         }
     }
 }

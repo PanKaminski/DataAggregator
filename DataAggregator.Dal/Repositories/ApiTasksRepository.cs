@@ -66,7 +66,7 @@ namespace DataAggregator.Dal.Repositories
             {
                 CommandType = CommandType.Text,
                 Connection = this.sqlConnection,
-                CommandText = "SELECT * FROM api_tasks"
+                CommandText = "SELECT * FROM api_tasks SELECT * FROM api_tasks at JOIN users u on at.subscriber_id = u.id WHERE at.id = @id"
             };
 
             await this.sqlConnection.OpenAsync();
@@ -91,7 +91,7 @@ namespace DataAggregator.Dal.Repositories
             await using var sqlCommand = new SqliteCommand()
             {
                 CommandType = CommandType.Text,
-                CommandText = "SELECT * FROM api_tasks WHERE id = @id",
+                CommandText = "SELECT * FROM api_tasks at JOIN users u on at.subscriber_id = u.id WHERE at.id = @id",
                 Connection = this.sqlConnection,
             };
 
@@ -194,11 +194,20 @@ namespace DataAggregator.Dal.Repositories
         private static ApiTaskDto ReadApiTaskFields(SqliteDataReader reader) =>
             new ApiTaskDto
             {
-                Id = (int)(long)reader["id"],
+                Id = (int)(long)reader["at.id"],
                 Name = (string)reader["name"],
                 Description = (string)reader["description"],
                 Api = null,
-                Subscriber = null,
+                Subscriber = new UserDto
+                {
+                    Id = (int)(long)reader["u.id"],
+                    Email = null,
+                    Role = Enum.Parse<UserRoleDto>((string)reader["role"]),
+                    PasswordHash = null,
+                    CountOfRequests = (int)(long)reader["count_of_requests"],
+                    RegistrationDate = DateTime.Parse((string)reader["registration_date"]),
+                    ApiSubscriptions = null
+                },
                 CronTimeExpression = (string)reader["cron_time_expression"],
             };
 
