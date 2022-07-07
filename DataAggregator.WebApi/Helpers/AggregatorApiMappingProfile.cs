@@ -26,17 +26,36 @@ namespace DataAggregator.WebApi.Helpers
             // api task dto <-> model
             this.CreateMap<ApiTaskDto, ApiTask>().ReverseMap();
 
-            // api task aggregators dto <-> model
+            // api task aggregators bll dto -> model
             this.CreateMap<AggregatorApiDto, AggregatorApi>()
-                .Include<CoinRankingApiDto, AggregatorApi>()
+                .Include<CoinRankingApiDto, CoinRankingApi>()
                 .Include<WeatherApiDto, WeatherApi>()
-                .Include<CovidAggregatorApiDto, AggregatorApi>();
-            this.CreateMap<CoinRankingApiDto, AggregatorApi>();
+                .Include<CovidAggregatorApiDto, CovidAggregatorApi>();
+            this.CreateMap<CoinRankingApiDto, CoinRankingApi>();
             this.CreateMap<WeatherApiDto, WeatherApi>();
-            this.CreateMap<CovidAggregatorApiDto, AggregatorApi>();
+            this.CreateMap<CovidAggregatorApiDto, CovidAggregatorApi>();
+
+            // api task aggregators bll model -> dto
+            this.CreateMap<AggregatorApi, AggregatorApiDto>()
+                .Include<CoinRankingApi, AggregatorApiDto>()
+                .Include<WeatherApi, AggregatorApiDto>()
+                .Include<CovidAggregatorApi, CovidAggregatorApiDto>();
+            this.CreateMap<CoinRankingApi, CoinRankingApiDto>()
+                .ForMember(dto => dto.ApiType, expr
+                    => expr.MapFrom(me => ApiTypeDto.CoinRanking));
+            this.CreateMap<WeatherApi, WeatherApiDto>()
+                .ForMember(dto => dto.ApiType, expr
+                    => expr.MapFrom(me => ApiTypeDto.WeatherTracker));
+            this.CreateMap<CovidAggregatorApi, CovidAggregatorApiDto>()
+                .ForMember(dto => dto.ApiType, expr
+                    => expr.MapFrom(me => ApiTypeDto.CovidTracker));
 
             // user response
             this.CreateMap<User, StatisticsResponse>();
+
+            // api task response
+            this.CreateMap<ApiTask, ApiTaskItemResponse>().ForMember(target => target.CronExpression,
+                expr => expr.MapFrom(bll => bll.CronTimeExpression));
         }
     }
 }

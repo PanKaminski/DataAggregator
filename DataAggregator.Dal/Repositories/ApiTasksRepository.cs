@@ -81,6 +81,42 @@ namespace DataAggregator.Dal.Repositories
             await this.sqlConnection.CloseAsync();
         }
 
+        public async Task<ApiTaskDto> GetAsync(int apiTaskId)
+        {
+            if (apiTaskId <= 0)
+            {
+                throw new ArgumentException("Api task id must be greater than zero.", nameof(apiTaskId));
+            }
+
+            await using var sqlCommand = new SqliteCommand()
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT * FROM api_tasks WHERE id = @id",
+                Connection = this.sqlConnection,
+            };
+
+            const string apiTaskIdParameter = "@id";
+            sqlCommand.Parameters.Add(apiTaskIdParameter, SqliteType.Integer);
+            sqlCommand.Parameters[apiTaskIdParameter].Value = apiTaskId;
+
+            await this.sqlConnection.OpenAsync();
+
+            var reader = await sqlCommand.ExecuteReaderAsync();
+
+            if (!reader.HasRows)
+            {
+                throw new KeyNotFoundException("Api task with such id wasn't found.");
+            }
+
+            await reader.ReadAsync();
+
+            var apiTask = await CreateApiTaskAsync(reader);
+
+            await this.sqlConnection.CloseAsync();
+
+            return apiTask;
+        }
+
         public async Task<bool> DeleteAsync(int apiTaskId)
         {
             if (apiTaskId <= 0)

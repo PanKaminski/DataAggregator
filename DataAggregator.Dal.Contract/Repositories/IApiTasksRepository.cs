@@ -10,6 +10,8 @@ namespace DataAggregator.Dal.Contract.Repositories
 
         IAsyncEnumerable<ApiTaskDto> GetAsync();
 
+        Task<ApiTaskDto> GetAsync(int apiTaskId);
+
         Task<bool> DeleteAsync(int apiTaskId);
 
         Task<bool> UpdateAsync(int apiTaskId, ApiTaskDto apiTask);

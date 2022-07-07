@@ -38,6 +38,7 @@ builder.Services.AddHttpClient<IDataAggregator, TaskDataAggregator>();
 builder.Services.AddScoped<IEmailDataSender, EmailDataSender>();
 builder.Services.AddScoped<IDataManager, DataManager>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IApiTasksService, ApiTasksService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IApiTasksRepository, ApiTasksRepository>();
 builder.Services.AddAutoMapper(typeof(AggregatorApiMappingProfile));
