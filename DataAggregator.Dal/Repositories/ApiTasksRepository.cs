@@ -23,6 +23,7 @@ namespace DataAggregator.Dal.Repositories
 
             var result = await AddApiTaskAsync(apiTask);
             apiTask.Id = await this.GetLastInsertedRowIdAsync();
+            apiTask.Api.ApiTaskKey = apiTask.Id;
             apiTask.Api.Id = apiTask.Id;
             await AddApiTaskAggregatorAsync(apiTask.Api);
             await AddConcreteApiTaskAggregatorAsync(apiTask.Api);
@@ -66,7 +67,7 @@ namespace DataAggregator.Dal.Repositories
             {
                 CommandType = CommandType.Text,
                 Connection = this.sqlConnection,
-                CommandText = "SELECT * FROM api_tasks SELECT * FROM api_tasks at JOIN users u on at.subscriber_id = u.id WHERE at.id = @id"
+                CommandText = "SELECT * FROM api_tasks SELECT * FROM api_tasks WHERE id = @id"
             };
 
             await this.sqlConnection.OpenAsync();
@@ -91,7 +92,7 @@ namespace DataAggregator.Dal.Repositories
             await using var sqlCommand = new SqliteCommand()
             {
                 CommandType = CommandType.Text,
-                CommandText = "SELECT * FROM api_tasks at JOIN users u on at.subscriber_id = u.id WHERE at.id = @id",
+                CommandText = "SELECT * FROM api_tasks WHERE id = @id;",
                 Connection = this.sqlConnection,
             };
 
@@ -128,14 +129,12 @@ namespace DataAggregator.Dal.Repositories
             {
                 CommandType = CommandType.Text,
                 Connection = this.sqlConnection,
-                CommandText = "DELETE * FROM api_tasks WHERE id=@apiTaskId"
+                CommandText = "DELETE FROM api_tasks WHERE id=@apiTaskId"
             };
 
             const string apiTaskIdParameter = "@apiTaskId";
             sqlCommand.Parameters.Add(apiTaskIdParameter, SqliteType.Integer);
             sqlCommand.Parameters[apiTaskIdParameter].Value = apiTaskId;
-
-            await this.sqlConnection.OpenAsync();
 
             await this.sqlConnection.OpenAsync();
 
@@ -158,6 +157,8 @@ namespace DataAggregator.Dal.Repositories
                 throw new ArgumentNullException(nameof(apiTask));
             }
 
+            apiTask.Id = apiTaskId;
+
             var result = await UpdateApiTaskAsync(apiTask) >= 0;
 
             await this.sqlConnection.CloseAsync();
@@ -173,7 +174,7 @@ namespace DataAggregator.Dal.Repositories
             {
                 CommandType = CommandType.Text,
                 Connection = this.sqlConnection,
-                CommandText = "SELECT * FROM apis_aggregators WHERE api_task_key = @apiTaskId"
+                CommandText = "SELECT * FROM apis_aggregators WHERE api_task_key = @apiTaskId;"
             };
 
             const string apiTaskIdParameter = "@apiTaskId";
@@ -183,7 +184,9 @@ namespace DataAggregator.Dal.Repositories
             await using var aggregationApiReader = await sqlCommand.ExecuteReaderAsync();
 
             await aggregationApiReader.ReadAsync();
+
             var api = await ReadAggregationApi(aggregationApiReader);
+
             apiTask.Api = api;
             api.ApiTask = apiTask;
             api.ApiTaskKey = apiTask.Id;
@@ -194,20 +197,11 @@ namespace DataAggregator.Dal.Repositories
         private static ApiTaskDto ReadApiTaskFields(SqliteDataReader reader) =>
             new ApiTaskDto
             {
-                Id = (int)(long)reader["at.id"],
+                Id = (int)(long)reader["id"],
                 Name = (string)reader["name"],
                 Description = (string)reader["description"],
                 Api = null,
-                Subscriber = new UserDto
-                {
-                    Id = (int)(long)reader["u.id"],
-                    Email = null,
-                    Role = Enum.Parse<UserRoleDto>((string)reader["role"]),
-                    PasswordHash = null,
-                    CountOfRequests = (int)(long)reader["count_of_requests"],
-                    RegistrationDate = DateTime.Parse((string)reader["registration_date"]),
-                    ApiSubscriptions = null
-                },
+                Subscriber = null,
                 CronTimeExpression = (string)reader["cron_time_expression"],
             };
 
@@ -317,10 +311,10 @@ namespace DataAggregator.Dal.Repositories
             };
 
             await this.sqlConnection.OpenAsync();
-            var affectedRows = (int)(await sqlCommand.ExecuteScalarAsync());
+            var affectedRows = (long)(await sqlCommand.ExecuteScalarAsync());
             await this.sqlConnection.CloseAsync();
 
-            return affectedRows;
+            return (int)affectedRows;
         }
 
         private async Task<int> AddApiTaskAggregatorAsync(AggregatorApiDto aggregator)
@@ -329,7 +323,7 @@ namespace DataAggregator.Dal.Repositories
             {
                 CommandType = CommandType.Text,
                 CommandText = "INSERT INTO apis_aggregators (id, api_task_key, api_type) " +
-                              "VALUES(@id, @apiTask, @apiType); ",
+                              "VALUES(@id, @apiTask, @apiType);",
                 Connection = this.sqlConnection,
             };
 
@@ -376,7 +370,7 @@ namespace DataAggregator.Dal.Repositories
                 sqlCommand.Parameters.Add(regionParameter, SqliteType.Text);
                 sqlCommand.Parameters[regionParameter].Value = weatherApi.Region;
             }
-            else if (aggregator.ApiType == ApiTypeDto.WeatherTracker)
+            else if (aggregator.ApiType == ApiTypeDto.CovidTracker)
             {
                 var covidApi = (CovidAggregatorApiDto)aggregator;
                 sqlCommand.CommandText = "INSERT INTO covid_aggregator_apis (id, country) " +
@@ -417,9 +411,14 @@ namespace DataAggregator.Dal.Repositories
                 CommandText = "UPDATE api_tasks " +
                               "SET name = @name," +
                               "description = @description," +
-                              "cron_time_expression = @cronTime,",
+                              "cron_time_expression = @cronTime " +
+                              "WHERE id=@apiTaskId;",
                 Connection = this.sqlConnection,
             };
+
+            const string idParameter = "@apiTaskId";
+            sqlCommand.Parameters.Add(idParameter, SqliteType.Integer);
+            sqlCommand.Parameters[idParameter].Value = apiTask.Id;
 
             AddSqlParametersForApiTask(apiTask, sqlCommand);
 

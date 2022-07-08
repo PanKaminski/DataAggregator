@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using DataAggregator.Bll.Contract.Models;
 using DataAggregator.Dal.Contract.Dtos;
-using DataAggregator.Db.Entities;
 using DataAggregator.WebApi.Models;
 
 namespace DataAggregator.WebApi.Helpers
@@ -30,8 +29,8 @@ namespace DataAggregator.WebApi.Helpers
 
             // api task aggregators bll model -> dto
             this.CreateMap<AggregatorApi, AggregatorApiDto>()
-                .Include<CoinRankingApi, AggregatorApiDto>()
-                .Include<WeatherApi, AggregatorApiDto>()
+                .Include<CoinRankingApi, CoinRankingApiDto>()
+                .Include<WeatherApi, WeatherApiDto>()
                 .Include<CovidAggregatorApi, CovidAggregatorApiDto>();
             this.CreateMap<CoinRankingApi, CoinRankingApiDto>()
                 .ForMember(dto => dto.ApiType, expr
@@ -51,14 +50,28 @@ namespace DataAggregator.WebApi.Helpers
                 expr => expr.MapFrom(bll => bll.CronTimeExpression));
 
             //api task requests
-            this.CreateMap<ApiTaskCreateRequest, ApiTask>();
             this.CreateMap<ApiAggregatorViewModel, AggregatorApi>()
                 .Include<CoinRankingAggregatorViewModel, CoinRankingApi>()
                 .Include<WeatherAggregatorViewModel, WeatherApi>()
-                .Include<CoinRankingAggregatorViewModel, CovidAggregatorApi>().ReverseMap();
-            this.CreateMap<CoinRankingAggregatorViewModel, CoinRankingApi>().ReverseMap();
+                .Include<CovidAggregatorViewModel, CovidAggregatorApi>();
+
+            this.CreateMap<CovidAggregatorViewModel, CovidAggregatorApi>().ReverseMap();
             this.CreateMap<WeatherAggregatorViewModel, WeatherApi>().ReverseMap();
-            this.CreateMap<CoinRankingAggregatorViewModel, CovidAggregatorApi>().ReverseMap();
+            this.CreateMap<CoinRankingAggregatorViewModel, CoinRankingApi>().ReverseMap();
+
+            this.CreateMap<AggregatorApi, ApiAggregatorViewModel>()
+                .Include<WeatherApi, WeatherAggregatorViewModel>()
+                .Include<CovidAggregatorApi, CovidAggregatorViewModel>()
+                .Include<CoinRankingApi, CoinRankingAggregatorViewModel>();
+
+            this.CreateMap<ApiTaskCreateRequest, ApiTask>()
+                .Include<CoinRankingApiTaskRequest, ApiTask>()
+                .Include<CovidApiTaskRequest, ApiTask>()
+                .Include<WeatherApiTaskRequest, ApiTask>();
+
+            this.CreateMap<CoinRankingApiTaskRequest, ApiTask>();
+            this.CreateMap<CovidApiTaskRequest, ApiTask>();
+            this.CreateMap<WeatherApiTaskRequest, ApiTask>();
 
             //api task response
             this.CreateMap<ApiTask, ApiTaskResponse>();

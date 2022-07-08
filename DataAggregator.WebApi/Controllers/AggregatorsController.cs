@@ -21,7 +21,7 @@ namespace DataAggregator.WebApi.Controllers
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        [HttpGet("/")]
+        [HttpGet]
         public async IAsyncEnumerable<ApiTaskItemResponse> Index()
         {
             var user = (User)this.HttpContext.Items["User"];
@@ -32,7 +32,7 @@ namespace DataAggregator.WebApi.Controllers
             }
         }
 
-        [HttpGet("/{apiTaskId}")]
+        [HttpGet("{apiTaskId}")]
         public async Task<IActionResult> GetByIdAsync(int apiTaskId)
         {
             if (apiTaskId <= 0)
@@ -48,50 +48,61 @@ namespace DataAggregator.WebApi.Controllers
                 return this.BadRequest();
             }
 
-            return Ok(this.mapper.Map<ApiTaskResponse>(model));
+            var response = this.mapper.Map<ApiTaskResponse>(model);
+
+            return Ok(response);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateTaskAsync(ApiTaskCreateRequest taskViewModel)
+        [HttpPost("weather")]
+        public async Task<IActionResult> CreateApiTaskWithWeatherTrackerAsync(WeatherApiTaskRequest taskViewModel)
         {
-            if (taskViewModel is null)
-            {
-                return this.BadRequest();
-            }
-
-            var model = this.mapper.Map<ApiTask>(taskViewModel);
-            model.Subscriber = (User)this.HttpContext.Items["User"];
-
-            var id = await this.apiTasksService.AddAsync(model);
+            var id = await this.CreateApiTask(taskViewModel);
 
             return id > 0 ? this.Ok(id) : this.BadRequest();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTaskAsync(int id, ApiTaskCreateRequest taskViewModel)
+        [HttpPost("coin")]
+        public async Task<IActionResult> CreateApiTaskWithCoinTrackerAsync(CoinRankingApiTaskRequest taskViewModel)
         {
-            if (taskViewModel is null)
-            {
-                return this.BadRequest();
-            }
+            var id = await this.CreateApiTask(taskViewModel);
 
-            var currentData = await this.apiTasksService.GetAsync(id);
-            var user = (User)this.HttpContext.Items["User"];
-
-            if (currentData is null || currentData.Subscriber.Id != user.Id)
-            {
-                return this.BadRequest();
-            }
-
-            var model = this.mapper.Map<ApiTask>(taskViewModel);
-            model.Subscriber = user;
-
-            var isUpdated = await this.apiTasksService.UpdateAsync(id, model);
-
-            return isUpdated ? this.NoContent() : this.BadRequest();
+            return id > 0 ? this.Ok(id) : this.BadRequest();
         }
 
-        [HttpDelete("/{apiTaskId}")]
+        [HttpPost("covid")]
+        public async Task<IActionResult> CreateApiTaskWithCovidTrackerAsync(CovidApiTaskRequest taskViewModel)
+        {
+            var id = await this.CreateApiTask(taskViewModel);
+
+            return id > 0 ? this.Ok(id) : this.BadRequest();
+        }
+
+        [HttpPut("weather/{id}")]
+        public async Task<IActionResult> UpdateWeatherTaskAsync(int id, WeatherApiTaskRequest taskViewModel)
+        {
+            var updateResult = await UpdateApiTask(id, taskViewModel);
+
+            return updateResult.Item1 ? this.NoContent() : this.BadRequest(updateResult.Item2);
+        }
+
+        [HttpPut("covid/{id}")]
+        public async Task<IActionResult> UpdateCovidTaskAsync(int id, CovidApiTaskRequest taskViewModel)
+        {
+            var updateResult = await UpdateApiTask(id, taskViewModel);
+
+            return updateResult.Item1 ? this.NoContent() : this.BadRequest(updateResult.Item2);
+        }
+
+        [HttpPut("coin/{id}")]
+        public async Task<IActionResult> UpdateCoinRankingTaskAsync(int id, CoinRankingApiTaskRequest taskViewModel)
+        {
+            var updateResult = await UpdateApiTask(id, taskViewModel);
+
+            return updateResult.Item1 ? this.NoContent() : this.BadRequest(updateResult.Item2);
+        }
+
+
+        [HttpDelete("{apiTaskId}")]
         public async Task<IActionResult> DeleteAsync(int apiTaskId)
         {
             if (apiTaskId <= 0)
@@ -107,6 +118,44 @@ namespace DataAggregator.WebApi.Controllers
             }
 
             return this.NoContent();
+        }
+
+        private async Task<int> CreateApiTask(ApiTaskCreateRequest apiTaskModel)
+        {
+            if (apiTaskModel is null)
+            {
+                return -1;
+            }
+
+            var model = this.mapper.Map<ApiTask>(apiTaskModel);
+            model.Subscriber = (User)this.HttpContext.Items["User"];
+
+            var id = await this.apiTasksService.AddAsync(model);
+
+            return id;
+        }
+
+        private async Task<(bool, string)> UpdateApiTask(int id, ApiTaskCreateRequest taskViewModel)
+        {
+            if (taskViewModel is null)
+            {
+                return (false, "Invalid values for api task");
+            }
+
+            var currentData = await this.apiTasksService.GetAsync(id);
+            var user = (User)this.HttpContext.Items["User"];
+
+            if (currentData is null || currentData.Subscriber.Id != user.Id)
+            {
+                return (false, "Current user is not able to modify task.");
+            }
+
+            var model = this.mapper.Map<ApiTask>(taskViewModel);
+            model.Subscriber = user;
+
+            var isUpdated = await this.apiTasksService.UpdateAsync(id, model);
+
+            return (isUpdated, string.Empty);
         }
     }
 }

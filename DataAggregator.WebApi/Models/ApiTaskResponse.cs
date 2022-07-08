@@ -11,6 +11,5 @@
         public ApiAggregatorViewModel Api { get; set; }
 
         public string CronTimeExpression { get; set; }
-
     }
 }

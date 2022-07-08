@@ -48,6 +48,16 @@ namespace DataAggregator.Dal.Repositories
             return await this.SelectUserAsync(userId);
         }
 
+        public async Task<UserDto> GetBySubscriptionAsync(int apiTaskId)
+        {
+            if (apiTaskId <= 0)
+            {
+                throw new ArgumentException("Task id must be greater than zero.", nameof(apiTaskId));
+            }
+
+            return await this.SelectUserByTaskAsync(apiTaskId);
+        }
+
         public async Task<UserDto> GetByEmailAsync(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -69,7 +79,7 @@ namespace DataAggregator.Dal.Repositories
 
             await this.sqlConnection.OpenAsync();
 
-            var reader = await sqlCommand.ExecuteReaderAsync();
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
 
             await reader.ReadAsync();
 
@@ -91,11 +101,11 @@ namespace DataAggregator.Dal.Repositories
 
             await this.sqlConnection.OpenAsync();
 
-            var reader = await sqlCommand.ExecuteReaderAsync();
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
             {
-                yield return CreateUser(reader);
+                yield return CreateUser(reader, "id");
             }
 
             await this.sqlConnection.CloseAsync();
@@ -176,7 +186,7 @@ namespace DataAggregator.Dal.Repositories
 
             await this.sqlConnection.OpenAsync();
 
-            var reader = await sqlCommand.ExecuteReaderAsync();
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
 
             if (!reader.HasRows)
             {
@@ -185,7 +195,7 @@ namespace DataAggregator.Dal.Repositories
 
             await reader.ReadAsync();
 
-            var user = CreateUser(reader);
+            var user = CreateUser(reader, "id");
 
             await this.sqlConnection.CloseAsync();
 
@@ -207,7 +217,7 @@ namespace DataAggregator.Dal.Repositories
 
             await this.sqlConnection.OpenAsync();
 
-            var reader = await sqlCommand.ExecuteReaderAsync();
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
 
             if (!reader.HasRows)
             {
@@ -216,14 +226,40 @@ namespace DataAggregator.Dal.Repositories
 
             await reader.ReadAsync();
 
-            var user = CreateUser(reader);
+            var user = CreateUser(reader, "id");
 
             await this.sqlConnection.CloseAsync();
 
             return user;
         }
 
-        private static UserDto CreateUser(SqliteDataReader reader)
+        private async Task<UserDto> SelectUserByTaskAsync(int apiTaskId)
+        {
+            await using var sqlCommand = new SqliteCommand()
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT * FROM api_tasks at JOIN users u on at.subscriber_id = u.id WHERE at.id = @apiTaskId",
+                Connection = this.sqlConnection,
+            };
+
+            const string apiTaskIdParameter = "@apiTaskId";
+            sqlCommand.Parameters.Add(apiTaskIdParameter, SqliteType.Integer);
+            sqlCommand.Parameters[apiTaskIdParameter].Value = apiTaskId;
+
+            await this.sqlConnection.OpenAsync();
+
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
+
+            await reader.ReadAsync();
+
+            var user = CreateUser(reader, "subscriber_id");
+
+            await this.sqlConnection.CloseAsync();
+
+            return user;
+        }
+
+        private static UserDto CreateUser(SqliteDataReader reader, string idColumnName)
         {
             if (!Enum.TryParse((string)reader["role"], out UserRoleDto role))
             {
@@ -232,7 +268,7 @@ namespace DataAggregator.Dal.Repositories
 
             return new UserDto
             {
-                Id = (int)(long)reader["id"],
+                Id = (int)(long)reader[idColumnName],
                 Email = (string)reader["email"],
                 Role = role,
                 PasswordHash = (string)reader["password_hash"],

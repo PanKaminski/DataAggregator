@@ -9,12 +9,14 @@ namespace DataAggregator.Bll.Services
     public class ApiTasksService : IApiTasksService
     {
         private readonly IApiTasksRepository apiTasksRepository;
+        private readonly IUsersRepository usersRepository;
         private readonly IMapper mapper;
 
-        public ApiTasksService(IApiTasksRepository apiTasksRepository, IMapper mapper)
+        public ApiTasksService(IApiTasksRepository apiTasksRepository, IUsersRepository usersRepository, IMapper mapper)
         {
             this.apiTasksRepository = apiTasksRepository ?? throw new ArgumentNullException(nameof(apiTasksRepository));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
         public async IAsyncEnumerable<ApiTask> GetByUserIdAsync(int userId)
@@ -49,7 +51,13 @@ namespace DataAggregator.Bll.Services
                 throw new ArgumentException("Api task id must be positive.");
             }
 
-            return this.mapper.Map<ApiTask>(await this.apiTasksRepository.GetAsync(apiTaskId));
+            var user = this.mapper.Map<User>(await this.usersRepository.GetBySubscriptionAsync(apiTaskId));
+            var dto = await this.apiTasksRepository.GetAsync(apiTaskId);
+            var apiTask = this.mapper.Map<ApiTask>(dto);
+
+            apiTask.Subscriber = user;
+
+            return apiTask;
         }
 
         public async Task<int> AddAsync(ApiTask apiTask)

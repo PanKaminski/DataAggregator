@@ -10,6 +10,8 @@ namespace DataAggregator.Dal.Contract.Repositories
 
         Task<UserDto> GetByEmailAsync(string email);
 
+        Task<UserDto> GetBySubscriptionAsync(int apiTaskId);
+
         Task<long> GetCountAsync();
 
         IAsyncEnumerable<UserDto> GetAllAsync();
