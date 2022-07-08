@@ -74,7 +74,9 @@ namespace DataAggregator.WebApi.Helpers
             this.CreateMap<WeatherApiTaskRequest, ApiTask>();
 
             //api task response
-            this.CreateMap<ApiTask, ApiTaskResponse>();
+            this.CreateMap<ApiTask, WeatherApiTaskResponse>();
+            this.CreateMap<ApiTask, CovidApiTaskResponse>();
+            this.CreateMap<ApiTask, CoinRankingApiTaskResponse>();
         }
     }
 }

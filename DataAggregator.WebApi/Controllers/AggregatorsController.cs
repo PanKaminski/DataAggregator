@@ -48,9 +48,12 @@ namespace DataAggregator.WebApi.Controllers
                 return this.BadRequest();
             }
 
-            var response = this.mapper.Map<ApiTaskResponse>(model);
-
-            return Ok(response);
+            return Ok(model.Api switch
+            {
+                WeatherApi => this.mapper.Map<WeatherApiTaskResponse>(model),
+                CoinRankingApi => this.mapper.Map<CoinRankingApiTaskResponse>(model),
+                CovidAggregatorApi => this.mapper.Map<CovidApiTaskResponse>(model),
+            });
         }
 
         [HttpPost("weather")]

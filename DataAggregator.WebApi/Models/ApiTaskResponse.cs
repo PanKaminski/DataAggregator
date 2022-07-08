@@ -8,8 +8,6 @@
 
         public string Description { get; set; }
 
-        public ApiAggregatorViewModel Api { get; set; }
-
         public string CronTimeExpression { get; set; }
     }
 }
