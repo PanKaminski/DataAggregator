@@ -1,6 +1,6 @@
-﻿namespace DataAggregator.Bll.Contract.Models
+﻿namespace DataAggregator.Db.Entities
 {
-    public class CoinRankingApi : AggregatorApi
+    public class CoinRankingApiEntity : AggregatorApiEntity
     {
         private string referenceCurrency;
 
@@ -8,13 +8,7 @@
 
         public string ReferenceCurrency
         {
-            get => this.referenceCurrency switch
-            {
-                "5k-_VTxqtCEI" => "Euro",
-                "Qwsogvtv82FCd" => "Bitcoin",
-                "yhjMzLPhuIDl" => "US Dollar",
-                _ => string.Empty
-            };
+            get => this.referenceCurrency;
             set
             {
                 this.referenceCurrency = value switch

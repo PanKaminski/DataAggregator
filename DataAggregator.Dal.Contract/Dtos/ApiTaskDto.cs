@@ -1,6 +1,6 @@
-﻿namespace DataAggregator.Bll.Contract.Models
+﻿namespace DataAggregator.Dal.Contract.Dtos
 {
-    public class ApiTask
+    public class ApiTaskDto
     {
         public int Id { get; set; }
 
@@ -8,9 +8,9 @@
 
         public string Description { get; set; }
 
-        public AggregatorApi Api { get; set; }
+        public AggregatorApiDto Api { get; set; }
 
-        public User Subscriber { get; set; }
+        public UserDto Subscriber { get; set; }
 
         public string CronTimeExpression { get; set; }
     }

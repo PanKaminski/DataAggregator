@@ -4,6 +4,6 @@ namespace DataAggregator.Bll.Contract.Interfaces
 {
     public interface IDataAggregator
     {
-        Task<string> ReceiveDataAsync(IAggregatorApi task);
+        Task<string> ReceiveDataAsync(AggregatorApi task);
     }
 }

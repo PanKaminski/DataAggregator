@@ -1,0 +1,310 @@
+﻿using System.Data;
+using DataAggregator.Dal.Contract.Dtos;
+using DataAggregator.Dal.Contract.Repositories;
+using Microsoft.Data.Sqlite;
+
+namespace DataAggregator.Dal.Repositories
+{
+    public class UsersRepository : IUsersRepository
+    {
+        private readonly SqliteConnection sqlConnection;
+
+        public UsersRepository(SqliteConnection sqlConnection)
+        {
+            this.sqlConnection = sqlConnection;
+        }
+
+        public async Task<int> AddAsync(UserDto userDto)
+        {
+            if (userDto is null)
+            {
+                throw new ArgumentNullException(nameof(userDto));
+            }
+
+            await using var sqlCommand = new SqliteCommand
+            {
+                CommandType = CommandType.Text,
+                CommandText = "INSERT INTO users (email, role, password_hash, count_of_requests, registration_date) " +
+                              "VALUES(@email, @role, @password, @countOfRequests, @registerDate); ",
+                Connection = this.sqlConnection,
+            };
+
+            AddSqlParametersForInsertion(userDto, sqlCommand);
+
+            await this.sqlConnection.OpenAsync();
+            var affectedRows = await sqlCommand.ExecuteNonQueryAsync();
+            await this.sqlConnection.CloseAsync();
+
+            return affectedRows;
+        }
+
+        public async Task<UserDto> GetByIdAsync(int userId)
+        {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("User id must be greater than zero.", nameof(userId));
+            }
+
+            return await this.SelectUserAsync(userId);
+        }
+
+        public async Task<UserDto> GetBySubscriptionAsync(int apiTaskId)
+        {
+            if (apiTaskId <= 0)
+            {
+                throw new ArgumentException("Task id must be greater than zero.", nameof(apiTaskId));
+            }
+
+            return await this.SelectUserByTaskAsync(apiTaskId);
+        }
+
+        public async Task<UserDto> GetByEmailAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new ArgumentException("User email is null or whitespace.", nameof(email));
+            }
+
+            return await this.SelectUserAsync(email);
+        }
+
+        public async Task<long> GetCountAsync()
+        {
+            await using var sqlCommand = new SqliteCommand()
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT COUNT(*) AS count FROM users",
+                Connection = this.sqlConnection,
+            };
+
+            await this.sqlConnection.OpenAsync();
+
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
+
+            await reader.ReadAsync();
+
+            var count = (long)reader["count"];
+
+            await this.sqlConnection.CloseAsync();
+
+            return count;
+        }
+
+        public async IAsyncEnumerable<UserDto> GetAllAsync()
+        {
+            await using var sqlCommand = new SqliteCommand
+            {
+                CommandType = CommandType.Text,
+                Connection = this.sqlConnection,
+                CommandText = "SELECT * FROM users"
+            };
+
+            await this.sqlConnection.OpenAsync();
+
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                yield return CreateUser(reader, "id");
+            }
+
+            await this.sqlConnection.CloseAsync();
+        }
+
+        public async Task<bool> DeleteAsync(int userId)
+        {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("User id must be greater than zero.", nameof(userId));
+            }
+
+            await using var sqlCommand = new SqliteCommand
+            {
+                CommandType = CommandType.StoredProcedure,
+                Connection = this.sqlConnection,
+                CommandText = "DELETE FROM users WHERE id=@userId"
+            };
+
+            const string userIdParameter = "@userId";
+            sqlCommand.Parameters.Add(userIdParameter, SqliteType.Integer);
+            sqlCommand.Parameters[userIdParameter].Value = userId;
+
+            await this.sqlConnection.OpenAsync();
+
+            var result = await sqlCommand.ExecuteNonQueryAsync() > 0;
+
+            await this.sqlConnection.CloseAsync();
+
+            return result;
+        }
+
+        public async Task<bool> UpdateAsync(int userId, UserDto userDto)
+        {
+            if (userDto is null)
+            {
+                throw new ArgumentNullException(nameof(userDto));
+            }
+
+            if (userId <= 0)
+            {
+                throw new ArgumentException("User id must be greater than zero.", nameof(userId));
+            }
+
+            await using var sqlCommand = new SqliteCommand
+            {
+                CommandType = CommandType.Text,
+                CommandText = "UPDATE users " +
+                              "SET email = @email," +
+                              "role = @role," +
+                              "password_hash = @password," +
+                              "count_of_requests = @countOfRequests," +
+                              "registration_date = @registerDate",
+                Connection = this.sqlConnection,
+            };
+
+            AddSqlParameters(userDto, sqlCommand);
+
+            await this.sqlConnection.OpenAsync();
+            var affectedRows = await sqlCommand.ExecuteNonQueryAsync();
+            await this.sqlConnection.CloseAsync();
+
+            return affectedRows > 0;
+        }
+
+        private async Task<UserDto> SelectUserAsync(string email)
+        {
+            await using var sqlCommand = new SqliteCommand()
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT * FROM users WHERE email = @email",
+                Connection = this.sqlConnection,
+            };
+
+            const string emailParameter = "@email";
+            sqlCommand.Parameters.Add(emailParameter, SqliteType.Text);
+            sqlCommand.Parameters[emailParameter].Value = email;
+
+            await this.sqlConnection.OpenAsync();
+
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
+
+            if (!reader.HasRows)
+            {
+                throw new KeyNotFoundException("User with such id wasn't found.");
+            }
+
+            await reader.ReadAsync();
+
+            var user = CreateUser(reader, "id");
+
+            await this.sqlConnection.CloseAsync();
+
+            return user;
+        }
+
+        private async Task<UserDto> SelectUserAsync(int userId)
+        {
+            await using var sqlCommand = new SqliteCommand()
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT * FROM users WHERE id = @userId",
+                Connection = this.sqlConnection,
+            };
+
+            const string userIdParameter = "@userId";
+            sqlCommand.Parameters.Add(userIdParameter, SqliteType.Integer);
+            sqlCommand.Parameters[userIdParameter].Value = userId;
+
+            await this.sqlConnection.OpenAsync();
+
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
+
+            if (!reader.HasRows)
+            {
+                throw new KeyNotFoundException("User with such id wasn't found.");
+            }
+
+            await reader.ReadAsync();
+
+            var user = CreateUser(reader, "id");
+
+            await this.sqlConnection.CloseAsync();
+
+            return user;
+        }
+
+        private async Task<UserDto> SelectUserByTaskAsync(int apiTaskId)
+        {
+            await using var sqlCommand = new SqliteCommand()
+            {
+                CommandType = CommandType.Text,
+                CommandText = "SELECT * FROM api_tasks at JOIN users u on at.subscriber_id = u.id WHERE at.id = @apiTaskId",
+                Connection = this.sqlConnection,
+            };
+
+            const string apiTaskIdParameter = "@apiTaskId";
+            sqlCommand.Parameters.Add(apiTaskIdParameter, SqliteType.Integer);
+            sqlCommand.Parameters[apiTaskIdParameter].Value = apiTaskId;
+
+            await this.sqlConnection.OpenAsync();
+
+            await using var reader = await sqlCommand.ExecuteReaderAsync();
+
+            await reader.ReadAsync();
+
+            var user = CreateUser(reader, "subscriber_id");
+
+            await this.sqlConnection.CloseAsync();
+
+            return user;
+        }
+
+        private static UserDto CreateUser(SqliteDataReader reader, string idColumnName)
+        {
+            if (!Enum.TryParse((string)reader["role"], out UserRoleDto role))
+            {
+                role = UserRoleDto.User;
+            }
+
+            return new UserDto
+            {
+                Id = (int)(long)reader[idColumnName],
+                Email = (string)reader["email"],
+                Role = role,
+                PasswordHash = (string)reader["password_hash"],
+                CountOfRequests = (int)(long)reader["count_of_requests"],
+                RegistrationDate = DateTime.Parse((string)reader["registration_date"]),
+                ApiSubscriptions = new List<ApiTaskDto>(),
+            };
+        }
+
+        private static void AddSqlParameters(UserDto user, SqliteCommand command)
+        {
+            const string emailParameter = "@email";
+            command.Parameters.Add(emailParameter, SqliteType.Text);
+            command.Parameters[emailParameter].Value = user.Email;
+
+            const string roleParameter = "@role";
+            command.Parameters.Add(roleParameter, SqliteType.Text);
+            command.Parameters[roleParameter].Value = user.Role.ToString();
+
+            const string passwordParameter = "@password";
+            command.Parameters.Add(passwordParameter, SqliteType.Text);
+            command.Parameters[passwordParameter].Value = user.PasswordHash;
+        }
+
+        private static void AddSqlParametersForInsertion(UserDto user, SqliteCommand command)
+        {
+            AddSqlParameters(user, command);
+
+            const string statisticsParameter = "@countOfRequests";
+            command.Parameters.Add(statisticsParameter, SqliteType.Integer);
+            command.Parameters[statisticsParameter].Value = user.CountOfRequests;
+
+            const string registerDateParameter = "@registerDate";
+            command.Parameters.Add(registerDateParameter, SqliteType.Text);
+            command.Parameters[registerDateParameter].Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+    }
+}

@@ -1,16 +1,12 @@
-﻿namespace DataAggregator.Bll.Contract.Models
+﻿namespace DataAggregator.WebApi.Models
 {
-    public class ApiTask
+    public class ApiTaskResponse
     {
         public int Id { get; set; }
 
         public string Name { get; set; }
 
         public string Description { get; set; }
-
-        public AggregatorApi Api { get; set; }
-
-        public User Subscriber { get; set; }
 
         public string CronTimeExpression { get; set; }
     }

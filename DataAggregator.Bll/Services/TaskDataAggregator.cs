@@ -15,7 +15,7 @@ namespace DataAggregator.Bll.Services
             this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task<string> ReceiveDataAsync(IAggregatorApi task) => task switch 
+        public async Task<string> ReceiveDataAsync(AggregatorApi task) => task switch 
         {
             CovidAggregatorApi api => await ReceiveDataAsync(api),
             CoinRankingApi api => await ReceiveDataAsync(api),

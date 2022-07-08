@@ -1,22 +1,19 @@
-﻿using System.Text.Json.Serialization;
-
-namespace DataAggregator.Bll.Contract.Models
+﻿namespace DataAggregator.Dal.Contract.Dtos
 {
-    public class User
+    public class UserDto
     {
         public int Id { get; set; }
          
         public string Email { get; set; }
 
-        public UserRole Role { get; set; }
+        public UserRoleDto Role { get; set; }
 
-        [JsonIgnore]
         public string PasswordHash { get; set; }
 
         public int CountOfRequests { get; set; }
 
         public DateTime RegistrationDate { get; init; }
 
-        public IEnumerable<ApiTask> ApiSubscriptions { get; set; }
+        public IEnumerable<ApiTaskDto> ApiSubscriptions { get; set; }
     }
 }
