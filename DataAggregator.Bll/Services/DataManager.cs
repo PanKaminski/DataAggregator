@@ -14,23 +14,18 @@ namespace DataAggregator.Bll.Services
             this.emailDataSender = emailDataSender ?? throw new ArgumentNullException(nameof(emailDataSender));
         }
 
-        public async Task ForwardDataForUserAsync(User user)
+        public async Task ForwardDataAsync(ApiTask apiTask)
         {
-            var tasks = user.ApiSubscriptions;
+            var data = await aggregator.ReceiveDataAsync(apiTask.Api);
 
-            foreach (var task in tasks)
-            {
-                var data = await aggregator.ReceiveDataAsync(task.Api);
+            using var stream = new MemoryStream();
+            await using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(data);
+            await writer.FlushAsync();
+            stream.Position = 0;
 
-                using var stream = new MemoryStream();
-                await using var writer = new StreamWriter(stream);
-                await writer.WriteAsync(data);
-                await writer.FlushAsync();
-                stream.Position = 0;
-
-                await emailDataSender.SendDataOnEmailAsync(
-                    new MessageDetails(user.Email, user.Email, "Aggregation data", stream));
-            }
+            await emailDataSender.SendDataOnEmailAsync(
+                new MessageDetails(apiTask.Subscriber.Email, apiTask.Subscriber.Email, "Aggregation data", stream));
         }
     }
 }
