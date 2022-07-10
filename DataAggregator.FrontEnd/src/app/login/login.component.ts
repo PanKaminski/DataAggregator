@@ -23,7 +23,6 @@ export class LoginComponent {
       private authenticationService: AuthenticationService
   ) { 
       // redirect to home if already logged in
-      console.log(this.authenticationService.userValue);
       if (this.authenticationService.userValue) { 
           this.router.navigate(['/']);
       }

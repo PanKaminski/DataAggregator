@@ -1,0 +1,116 @@
+<div class="container-md ">
+    <h2 class="mt-2 text-center">Create new task</h2>
+
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-6">
+            <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
+            <form [formGroup]="apiTaskForm">
+                <div class="d-flex flex-column">
+                    <div class="form-check mt-3" *ngFor="let item of apiTypeNames">
+                        <input 
+                            name="apiAggregatorType" 
+                            formControlName="apiAggregatorType" 
+                            class="form-check-input" 
+                            type="radio" 
+                            (change)="selectApi()"
+                            [value]="item">
+                        <label class="form-check-label">{{ item }}</label>
+                    </div>
+                    <div class="mt-1 text-danger" *ngIf="submitted && f['apiAggregatorType'].errors?.['required']">
+                        Api type is required.
+                    </div>        
+                </div>
+                <div class="form-group mt-3">
+                    <label class="pb-1" for="name">Task name</label>
+                    <input type="text" formControlName="name" class="form-control" placeholder="Task name"
+                        [ngClass]="{ 'text-danger': submitted && f['name'].invalid }"/>
+                    <div class="mt-1 text-danger" *ngIf="submitted && f['name'].errors?.['required']">
+                        Task name is required.
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <label class="pb-1" for="description">Description</label>
+                    <textarea formControlName="description" class="form-control"></textarea>
+                </div>
+                <div class="form-group mt-3">
+                    <div class="btn-group" data-toggle="buttons">
+                        <button type="button" class="btn btn-primary" (click)="setCron('0 * * * *')">Hourly</button>
+                        <button type="button" class="btn btn-primary" (click)="setCron('0 12 * * *')">Daily</button>
+                        <button type="button" class="btn btn-primary" (click)="setCron('0 0 * * 1')">Weekly</button>
+                        <button type="button" class="btn btn-primary" (click)="setCron('0 12 1 * *')">Monthly</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mt-3">
+                        <label class="pb-1" for="name">Cron expression</label>
+                        <input type="text" formControlName="cronTimeExpression" class="form-control" 
+                            [ngClass]="{ 'text-danger': submitted && f['cronTimeExpression'].invalid }"/>
+                        <div class="mt-1 text-danger" *ngIf="submitted && f['cronTimeExpression'].errors?.['required']">
+                            Email schedule is required.
+                        </div>        
+                    </div>    
+                </div>
+
+                <div class="form-group mt-3 d-none" id="covid" #covid>
+                    <label class="pb-1" for="country">Country</label>
+                    <select class="form-control" formControlName="country" id="country-select">
+                        <option value="world" selected>World</option>
+                        <option value="usa">USA</option>
+                        <option value="japan">Japan</option>
+                        <option value="france">France</option>
+                        <option value="spain">Spain</option>
+                        <option value="india">India</option>
+                        <option value="australia">Australia</option>
+                        <option value="brasil">Brazil</option>
+                        <option value="germany">Germany</option>
+                        <option value="uk">UK</option>
+                        <option value="italy">Italy</option>
+                    </select>
+                </div>
+                <div class="form-group mt-3 d-none" id="region" #region>
+                    <label class="pb-1" for="region">Region</label>
+                    <select class="form-control" formControlName="country" id="region-select">
+                        <option value="Paris" selected>Paris</option>
+                        <option value="London">London</option>
+                        <option value="Berlin">Berlin</option>
+                        <option value="Washington DC">Washington DC</option>
+                        <option value="Madrid">Madrid</option>
+                        <option value="Warshaw">Warshaw</option>
+                        <option value="Misk">Minsk</option>
+                        <option value="Brazilia">Brazilia</option>
+                        <option value="Pekin">Pekin</option>
+                        <option value="Rome">Rome</option>
+                    </select>
+                </div>
+                <div class="form-group mt-3 d-none" id="sparkLine" #sparkLine>
+                    <label class="pb-1" for="sparkLineTime">Sparkline time</label>
+                    <select class="form-control" formControlName="sparkLineTime" id="sparkLine-select">
+                        <option value="3h" selected>3h</option>
+                        <option value="24h">24h</option>
+                        <option value="7d">7d</option>
+                        <option value="30d">30d</option>
+                        <option value="3m">3m</option>
+                        <option value="1y">1y</option>
+                        <option value="3y">3y</option>
+                        <option value="5y">5y</option>
+                    </select>
+                </div>
+                <div class="form-group mt-3 d-none" id="currency" #currency>
+                    <label class="pb-1" for="referenceCurrency">Reference currency</label>
+                    <select class="form-control" formControlName="referenceCurrency" id="currency-select">
+                        <option value="US Dollar" selected>US Dollar</option>
+                        <option value="Euro">Euro</option>
+                        <option value="Bitcoin">Bitcoin</option>
+                    </select>
+                </div>
+                <div class="btn-group my-3" role="group" aria-label="final">
+                    <button [disabled]="loading" class="btn btn-success" type="submit" (click)="create()" [disabled]="!apiTaskForm.valid">
+                        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+                        Create
+                    </button>
+                    <a class="btn btn-secondary ml-2" routerLink="/">Cancel</a>    
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
