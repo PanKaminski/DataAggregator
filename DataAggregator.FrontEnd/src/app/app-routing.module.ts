@@ -7,6 +7,7 @@ import { TasklistComponent } from './tasklist/tasklist.component';
 import { AuthGuard } from './_helpers/auth.guard';
 import { Role } from './_models/role';
 import { TaskCreateComponent } from './task-create/task-create.component';
+import { TaskEditComponent } from './task-edit/task-edit.component';
 
 const routes: Routes = [
   {
@@ -15,9 +16,14 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-      path: 'new-task',
+      path: 'task/new',
       component: TaskCreateComponent,
       canActivate: [AuthGuard],
+  },
+  {
+    path: 'task/edit/:id',
+    component: TaskEditComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'admin',

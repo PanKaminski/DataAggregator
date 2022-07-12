@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RegisterComponent } from './register/register.component';
 import { TasklistComponent } from './tasklist/tasklist.component';
 import { TaskCreateComponent } from './task-create/task-create.component';
+import { TaskEditComponent } from './task-edit/task-edit.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { TaskCreateComponent } from './task-create/task-create.component';
     LoginComponent,
     RegisterComponent,
     TasklistComponent,
-    TaskCreateComponent
+    TaskCreateComponent,
+    TaskEditComponent
   ],
   imports: [
     BrowserModule,

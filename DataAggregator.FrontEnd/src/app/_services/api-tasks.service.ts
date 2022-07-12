@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { environment } from "src/environments/environment";
 import { ApiType } from "../_models";
 import { ApiTaskItem } from '../_models/api-task-item';
-import { ApiTaskCreateModel } from '../_models/api-task.create.model';
+import { ApiTaskModel } from '../_models/api-task.model';
 
 @Injectable({providedIn: 'root'})
 export class ApiTasksService{
@@ -19,7 +19,11 @@ export class ApiTasksService{
         return this.http.get<ApiTaskItem[]>(`${this.baseUrl}/`);
     }
 
-    createTask(taskModel: ApiTaskCreateModel){
+    getTask(id: number){
+        return this.http.get<ApiTaskModel>(`${this.baseUrl}/${id}`)
+    }
+
+    createTask(taskModel: ApiTaskModel){
         var selectedApiType = taskModel.apiAggregatorType;
         if(selectedApiType === ApiType.CovidTracker){
             return this.http.post<any>(`${this.baseUrl}/covid`, {
@@ -43,6 +47,40 @@ export class ApiTasksService{
 
         } else{
             return this.http.post<any>(`${this.baseUrl}/weather`, {
+                name: taskModel.name,
+                description:taskModel.description,
+                cronTimeExpression: taskModel.cronTimeExpression,
+                api: {
+                    region: taskModel.region
+                }
+            });
+        }
+    }
+
+    updateTask(id: number, taskModel: ApiTaskModel){
+        var selectedApiType = taskModel.apiAggregatorType;
+        if(selectedApiType === ApiType.CovidTracker){
+            return this.http.put<any>(`${this.baseUrl}/covid/${id}`, {
+                name: taskModel.name,
+                description:taskModel.description,
+                cronTimeExpression: taskModel.cronTimeExpression,
+                api: {
+                    country: taskModel.country
+                }
+            });
+        } else if(selectedApiType === ApiType.CurrencyTracker){
+            return this.http.put<any>(`${this.baseUrl}/coin/${id}`, {
+                name: taskModel.name,
+                description:taskModel.description,
+                cronTimeExpression: taskModel.cronTimeExpression,
+                api: {
+                    sparkLineTime: taskModel.sparkLineTime,
+                    referenceCurrency: taskModel.referenceCurrency    
+                }
+            });
+
+        } else{
+            return this.http.put<any>(`${this.baseUrl}/weather/${id}`, {
                 name: taskModel.name,
                 description:taskModel.description,
                 cronTimeExpression: taskModel.cronTimeExpression,

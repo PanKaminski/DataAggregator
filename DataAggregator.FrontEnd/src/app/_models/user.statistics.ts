@@ -6,4 +6,5 @@ export interface UserStatistics {
     role: Role;
     countOfRequests: number;
     registrationDate: string;
+    requestsPerDay: number;
 }

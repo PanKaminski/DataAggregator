@@ -1,7 +1,7 @@
 <section class="container mt-2">
     <h1 class="row justify-content-center">Active tasks</h1>
     <div class="d-grid gap-2 col-2 mx-auto">
-        <a class="btn btn-primary" routerLink="/new-task">Create new job</a>
+        <a class="btn btn-primary" routerLink="/task/new">Create new job</a>
       </div>
     <div class="row mt-2 mb-2">
         <div class="col-md-12" *ngIf="userTasks !== []">
@@ -15,7 +15,7 @@
                     </div>
                     <div class="card-footer d-flex justify-content-between">
                         <div class="d-inline-block">
-                            <a class="btn btn-outline-secondary">Edit</a>
+                            <a class="btn btn-outline-secondary" [routerLink]="['task', 'edit', userTask.id]">Edit</a>
                         </div>
                         <div class="d-inline-block">
                             <a class="btn btn-outline-danger" (click)="deleteTask(userTask.id)">Delete</a>

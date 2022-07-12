@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { matchContent } from '../_helpers/match-validator';
+import { mustMatch } from '../_helpers/match-validator';
 import { AuthenticationService } from '../_services';
 import { first } from 'rxjs';
 
@@ -30,7 +30,8 @@ export class RegisterComponent implements OnInit {
       this.registerForm = this.formBuilder.group({
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required,Validators.minLength(6), Validators.maxLength(30)]],
-        confirmPassword: ['', [Validators.required, () => matchContent('password')]]});
+        confirmPassword: ['', [Validators.required]]},
+        {validator: mustMatch('password', 'confirmPassword')});
     }
 
   ngOnInit(): void {

@@ -33,18 +33,19 @@ export class TaskCreateComponent implements OnInit {
       this.apiTaskForm = this.formBuilder.group({
         name: ['', [Validators.required]],
         description: [''],
-        cronTimeExpression: ['* * * * *', Validators.required],
+        cronTimeExpression: ['0 * * * * ?', Validators.required],
         apiAggregatorType: ['', Validators.required],
         sparkLineTime: [''],
         referenceCurrency: [''],
         region: [''],
         country: [''],
     });
-    
   }
 
   ngOnInit(): void {
   }
+
+  get f() { return this.apiTaskForm.controls; }
 
   selectApi(){
     var selectedApi = this.apiTaskForm.controls['apiAggregatorType'].value;
@@ -94,6 +95,4 @@ export class TaskCreateComponent implements OnInit {
             }
         });
   }
-
-  get f() { return this.apiTaskForm.controls; }
 }
