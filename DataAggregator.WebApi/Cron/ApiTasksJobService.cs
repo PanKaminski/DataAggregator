@@ -9,18 +9,24 @@ namespace DataAggregator.WebApi.Cron
     {
         private readonly IServiceProvider serviceProvider;
         private readonly IJobFactory jobFactory;
+        private readonly ILogger logger;
 
-        private IScheduler Scheduler { get; set; }
-
-        public ApiTasksJobService(IScheduler scheduler, IServiceProvider serviceProvider, IJobFactory jobFactory)
+        public ApiTasksJobService(IScheduler scheduler,
+            IServiceProvider serviceProvider,
+            IJobFactory jobFactory, ILogger<ApiTasksJobService> logger)
         {
             this.Scheduler = scheduler;
             this.serviceProvider = serviceProvider;
             this.jobFactory = jobFactory;
+            this.logger = logger;
         }
+
+        private IScheduler Scheduler { get; }
 
         public async Task AddJobAsync(ApiTask apiTask)
         {
+            logger.LogInformation("Schedule job " + apiTask.Name);
+
             var trigger = TriggerBuilder.Create()
                 .WithIdentity(apiTask.Id + ".trigger", apiTask.Subscriber.Email)
                 .WithCronSchedule(apiTask.CronTimeExpression)
@@ -38,12 +44,16 @@ namespace DataAggregator.WebApi.Cron
 
         public void DeleteJob(ApiTask apiTask)
         {
+            logger.LogInformation("Unschedule job " + apiTask.Name);
+
             Scheduler.UnscheduleJob(new TriggerKey(apiTask.Id.ToString(), apiTask.Subscriber.Email));
             Scheduler.DeleteJob(new JobKey(apiTask.Id.ToString(), apiTask.Subscriber.Email));
         }
 
         public async Task UpdateJobAsync(ApiTask apiTask)
         {
+            logger.LogInformation("Update job " + apiTask.Name);
+
             this.DeleteJob(apiTask);
             await this.AddJobAsync(apiTask);
         }
@@ -64,11 +74,15 @@ namespace DataAggregator.WebApi.Cron
                 }
             }
 
+            logger.LogInformation("Start scheduler");
+
             await this.Scheduler.Start(cancellationToken);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            logger.LogInformation("Stop scheduler");
+
             await Scheduler?.Shutdown(cancellationToken);
             await Task.CompletedTask;
         }
