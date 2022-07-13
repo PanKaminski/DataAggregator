@@ -40,7 +40,11 @@ namespace DataAggregator.Bll.Services
 
             await foreach (var taskDto in tasks)
             {
-                yield return this.mapper.Map<ApiTask>(taskDto);
+                var user = this.mapper.Map<User>(await this.usersRepository.GetBySubscriptionAsync(taskDto.Id));
+                var apiTask = this.mapper.Map<ApiTask>(taskDto);
+                apiTask.Subscriber = user;
+
+                yield return apiTask;
             }
         }
 
@@ -87,7 +91,11 @@ namespace DataAggregator.Bll.Services
                 return false;
             }
 
-            return await this.apiTasksRepository.UpdateAsync(apiTaskId, this.mapper.Map<ApiTaskDto>(apiTask));
+            var dto = this.mapper.Map<ApiTaskDto>(apiTask);
+            dto.Api.ApiTaskKey = apiTaskId;
+            dto.Api.Id = apiTaskId;
+
+            return await this.apiTasksRepository.UpdateAsync(apiTaskId, dto);
         }
     }
 }

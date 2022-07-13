@@ -1,0 +1,27 @@
+<section class="container mt-2">
+    <h1 class="row justify-content-center">Active tasks</h1>
+    <div class="d-grid gap-2 col-2 mx-auto">
+        <a class="btn btn-primary" routerLink="/task/new">Create new job</a>
+      </div>
+    <div class="row mt-2 mb-2">
+        <div class="col-md-12" *ngIf="userTasks !== []">
+                <div class="card mt-2" *ngFor="let userTask of userTasks">
+                    <div class="card-body">
+                        <div class="row d-flex justify-content-between">
+                            <h3 class="card-title d-inline-block">{{userTask.name}}</h3>
+                            <div class="font-italic text-muted float-right d-inline-block">{{userTask.cronExpression}}</div>
+                        </div>
+                        <p class="card-text" *ngIf="userTask.description">{{userTask.description}}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <div class="d-inline-block">
+                            <a class="btn btn-outline-secondary" [routerLink]="['task', 'edit', userTask.id]">Edit</a>
+                        </div>
+                        <div class="d-inline-block">
+                            <a class="btn btn-outline-danger" (click)="deleteTask(userTask.id)">Delete</a>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</section>

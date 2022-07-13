@@ -1,0 +1,28 @@
+<div class="container mt-2">
+    <h1 class="row justify-content-center">User Statistics</h1>
+    <p class="mb-1">All users from secure (admin only) api point:</p>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">User name</th>
+                    <th scope="col">Regitration date</th>
+                    <th scope="col">Total requests</th>
+                    <th scope="col">Requests per day</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="users">
+                    <tr *ngFor="let user of users; index as i">
+                        <th scope="row">{{i + 1}}</th>
+                        <td>{{user.email}}</td>
+                        <td>{{user.registrationDate}}</td>
+                        <td>{{user.countOfRequests}}</td>
+                        <td>{{user.requestsPerDay}}</td>
+                    </tr>
+                </tbody>
+              </table>
+        </div>
+    </div>
+</div>

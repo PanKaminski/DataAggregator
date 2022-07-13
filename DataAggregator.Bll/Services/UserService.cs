@@ -77,9 +77,9 @@ namespace DataAggregator.Bll.Services
             return await this.usersRepository.DeleteAsync(userId);
         }
 
-        public async Task<bool> UpdateAsync(int userId, User user)
+        public async Task<bool> UpdateStatisticsAsync(int userId)
         {
-            return await this.usersRepository.UpdateAsync(userId, this.mapper.Map<UserDto>(user));
+            return await this.usersRepository.UpdateStatisticsAsync(userId);
         }
     }
 }

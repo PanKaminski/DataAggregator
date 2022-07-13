@@ -43,7 +43,9 @@ namespace DataAggregator.WebApi.Helpers
                     => expr.MapFrom(me => ApiTypeDto.CovidTracker));
 
             // user response
-            this.CreateMap<User, StatisticsResponse>();
+            this.CreateMap<User, StatisticsResponse>().ForMember(target => target.RequestsPerDay,
+                expr => expr.MapFrom(bll => 
+                (DateTime.Now - bll.RegistrationDate).Days == 0 ? 0 : bll.CountOfRequests / (DateTime.Now - bll.RegistrationDate).Days));
 
             // api task response
             this.CreateMap<ApiTask, ApiTaskItemResponse>().ForMember(target => target.CronExpression,

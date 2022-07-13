@@ -19,5 +19,7 @@ namespace DataAggregator.Dal.Contract.Repositories
         Task<bool> DeleteAsync(int userId);
 
         Task<bool> UpdateAsync(int userId, UserDto userDto);
+
+        Task<bool> UpdateStatisticsAsync(int userId);
     }
 }
