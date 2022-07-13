@@ -7,15 +7,14 @@ namespace DataAggregator.WebApi.Cron
 {
     public class ApiTasksJobService : IApiTasksJobService, IHostedService
     {
-        private readonly ISchedulerFactory schedulerFactory;
         private readonly IServiceProvider serviceProvider;
         private readonly IJobFactory jobFactory;
 
         private IScheduler Scheduler { get; set; }
 
-        public ApiTasksJobService(ISchedulerFactory schedulerFactory, IServiceProvider serviceProvider, IJobFactory jobFactory)
+        public ApiTasksJobService(IScheduler scheduler, IServiceProvider serviceProvider, IJobFactory jobFactory)
         {
-            this.schedulerFactory = schedulerFactory;
+            this.Scheduler = scheduler;
             this.serviceProvider = serviceProvider;
             this.jobFactory = jobFactory;
         }
@@ -23,7 +22,7 @@ namespace DataAggregator.WebApi.Cron
         public async Task AddJobAsync(ApiTask apiTask)
         {
             var trigger = TriggerBuilder.Create()
-                .WithIdentity(apiTask.Id.ToString(), apiTask.Subscriber.Email)
+                .WithIdentity(apiTask.Id + ".trigger", apiTask.Subscriber.Email)
                 .WithCronSchedule(apiTask.CronTimeExpression)
                 .StartNow()
                 .Build();
@@ -51,7 +50,6 @@ namespace DataAggregator.WebApi.Cron
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            this.Scheduler = await schedulerFactory.GetScheduler(cancellationToken);
             this.Scheduler.JobFactory = this.jobFactory;
 
             if (!cancellationToken.IsCancellationRequested)

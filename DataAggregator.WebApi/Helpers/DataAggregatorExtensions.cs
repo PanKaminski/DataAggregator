@@ -4,7 +4,6 @@ using DataAggregator.Bll.Services;
 using DataAggregator.Dal.Contract.Repositories;
 using DataAggregator.Dal.Repositories;
 using DataAggregator.WebApi.Cron;
-using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
 
@@ -19,10 +18,13 @@ namespace DataAggregator.WebApi.Helpers
             services.AddHttpClient<IDataAggregator, TaskDataAggregator>();
             services.AddSingleton<IEmailDataSender, EmailDataSender>();
             services.AddSingleton<IDataManager, DataManager>();
-            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+
+            var scheduler = StdSchedulerFactory.GetDefaultScheduler().GetAwaiter().GetResult();
+            services.AddSingleton(scheduler);
+
             services.AddSingleton<IJobFactory, CronJobFactory>();
             services.AddSingleton<IApiTasksJobService, ApiTasksJobService>();
-            //services.AddHostedService<ApiTasksJobService>();
+            services.AddHostedService<ApiTasksJobService>();
 
             return services;
         }
