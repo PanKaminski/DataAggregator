@@ -91,7 +91,11 @@ namespace DataAggregator.Bll.Services
                 return false;
             }
 
-            return await this.apiTasksRepository.UpdateAsync(apiTaskId, this.mapper.Map<ApiTaskDto>(apiTask));
+            var dto = this.mapper.Map<ApiTaskDto>(apiTask);
+            dto.Api.ApiTaskKey = apiTaskId;
+            dto.Api.Id = apiTaskId;
+
+            return await this.apiTasksRepository.UpdateAsync(apiTaskId, dto);
         }
     }
 }

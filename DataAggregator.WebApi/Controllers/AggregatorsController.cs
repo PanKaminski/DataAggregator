@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAggregator.Bll.Contract.Interfaces;
 using DataAggregator.Bll.Contract.Models;
+using DataAggregator.WebApi.Cron;
 using DataAggregator.WebApi.Helpers;
 using DataAggregator.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,13 @@ namespace DataAggregator.WebApi.Controllers
     {
         private readonly IApiTasksService apiTasksService;
         private readonly IMapper mapper;
+        private readonly IApiTasksJobService jobService;
 
-        public AggregatorsController(IApiTasksService apiTasksService, IMapper mapper)
+        public AggregatorsController(IApiTasksService apiTasksService, IApiTasksJobService jobService, IMapper mapper)
         {
             this.apiTasksService = apiTasksService ?? throw new ArgumentNullException(nameof(apiTasksService));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            this.jobService = jobService ?? throw new ArgumentNullException(nameof(jobService));
         }
 
         [HttpGet]
@@ -113,12 +116,16 @@ namespace DataAggregator.WebApi.Controllers
                 return BadRequest("Invalid api task id");
             }
 
+            var task = await this.apiTasksService.GetAsync(apiTaskId);
+
             var isDeleted = await this.apiTasksService.DeleteAsync(apiTaskId);
 
             if (!isDeleted)
             {
                 return NotFound();
             }
+
+            this.jobService.DeleteJob(task);
 
             return this.NoContent();
         }
@@ -134,6 +141,8 @@ namespace DataAggregator.WebApi.Controllers
             model.Subscriber = (User)this.HttpContext.Items["User"];
 
             var id = await this.apiTasksService.AddAsync(model);
+            var task = await this.apiTasksService.GetAsync(id);
+            await this.jobService.AddJobAsync(task);
 
             return id;
         }
@@ -157,6 +166,9 @@ namespace DataAggregator.WebApi.Controllers
             model.Subscriber = user;
 
             var isUpdated = await this.apiTasksService.UpdateAsync(id, model);
+
+            var task = await this.apiTasksService.GetAsync(id);
+            await this.jobService.UpdateJobAsync(task);
 
             return (isUpdated, string.Empty);
         }

@@ -14,6 +14,6 @@ namespace DataAggregator.Bll.Contract.Interfaces
 
         Task<bool> DeleteAsync(int userId);
 
-        Task<bool> UpdateAsync(int userId, User user);
+        Task<bool> UpdateStatisticsAsync(int userId);
     }
 }

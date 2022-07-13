@@ -104,7 +104,7 @@ namespace DataAggregator.Bll.Services
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"https://weatherapi-com.p.rapidapi.com/current.json?q={task.Region}"),
+                RequestUri = new Uri($"https://weatherapi-com.p.rapidapi.com/current.json?q={task.Region}&dt=2022-12-25"),
                 Headers =
                 {
                     { "X-RapidAPI-Key", "2784faac60msh442834adae43258p110a3bjsndb73bec1ddbd" },

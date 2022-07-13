@@ -1,4 +1,6 @@
-﻿namespace DataAggregator.WebApi.Models
+﻿using DataAggregator.Bll.Contract.Models;
+
+namespace DataAggregator.WebApi.Models
 {
     public class StatisticsResponse
     {
@@ -6,9 +8,12 @@
 
         public string Email { get; set; }
 
+        public UserRole Role { get; set; }
+
         public int CountOfRequests { get; set; }
 
-        public DateTime RegistrationDate { get; init; }
+        public int RequestsPerDay { get; init; }
 
+        public DateTime RegistrationDate { get; set; }
     }
 }
